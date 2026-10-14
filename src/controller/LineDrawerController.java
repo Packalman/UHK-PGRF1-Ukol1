@@ -5,6 +5,7 @@ import model.Line;
 import model.Point;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,29 @@ public class LineDrawerController extends SubController {
         super.mouseDragged(e);
         if (previewLineStart!=null){
             previewLine = new Line(previewLineStart, Point.fromMouseEvent(e), PREVIEW_LINE_COLOR);
+        }
+    }
+
+    Point mousePos;
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        super.mouseMoved(e);
+        mousePos = Point.fromMouseEvent(e);
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        super.keyPressed(e);
+        if(e.getKeyCode() == KeyEvent.VK_DELETE) {
+            int length = lines.size();
+            for (int i = 0; i < length; i++) {
+                var l = lines.get(i);
+                if(l.getNormalSize(mousePos)<20&&l.containsX(mousePos.getX())&&l.containsY(mousePos.getY())){
+                    lines.remove(i);
+                    i--;
+                    length--;
+                }
+            }
         }
     }
 
