@@ -15,16 +15,20 @@ import java.awt.*;
 public class Window extends JFrame {
 
     private final Canvas canvas;
+    private final Toolbar toolBar;
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Constructors -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
     public Window(int width, int height) {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("FIM UHK | PGRF1 | 2026 | [Name]");
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(0, 0));
         setResizable(false);
 
         canvas = new Canvas(width, height);
+        toolBar = new Toolbar();
+
+        add(toolBar, BorderLayout.NORTH);
         add(canvas);
         pack();
 
@@ -38,6 +42,10 @@ public class Window extends JFrame {
 
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    public Toolbar getToolBar(){
+        return this.toolBar;
     }
 
 }
