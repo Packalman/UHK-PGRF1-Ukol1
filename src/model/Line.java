@@ -38,8 +38,16 @@ public class Line {
         return x >= min_x && x <= max_x;
     }
 
+    public boolean containsX(int x, int tolerance){
+        return x >= min_x - tolerance && x <= max_x + tolerance;
+    }
+
     public boolean containsY(int y){
         return y >= min_y && y <= max_y;
+    }
+
+    public boolean containsY(int y, int tolerance){
+        return y >= min_y - tolerance && y <= max_y + tolerance;
     }
 
     //https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line

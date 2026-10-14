@@ -106,7 +106,9 @@ public class LineDrawerController extends SubController {
             int length = lines.size();
             for (int i = 0; i < length; i++) {
                 var l = lines.get(i);
-                if(l.getNormalSize(mousePos)<=LINE_INTERACTION_DISTANCE&&l.containsX(mousePos.getX())&&l.containsY(mousePos.getY())){
+                if(l.getNormalSize(mousePos)<=LINE_INTERACTION_DISTANCE&&
+                        l.containsX(mousePos.getX(), LINE_INTERACTION_DISTANCE) &&
+                        l.containsY(mousePos.getY(), LINE_INTERACTION_DISTANCE)){
                     lines.remove(i);
                     i--;
                     length--;
