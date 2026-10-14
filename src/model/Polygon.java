@@ -1,30 +1,30 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Polygon {
-    private final List<Line> lines;
+    private final Line[] lines;
+    private final Point[] points;
 
     public Polygon(int color, Point... points){
-        this(new ArrayList<>());
-        if(points.length>1){
+        if(points.length > 2){
+            lines = new Line[points.length];
+            this.points = points;
+
             for (int i = 1; i < points.length; i++) {
-                lines.add(new Line(points[i-1], points[i], color));
+                lines[i] = new Line(points[i-1], points[i], color);
             }
-            lines.add(new Line(points[0], points[points.length-1], color));
+            lines[0] = new Line(points[0], points[points.length-1], color);
+        }
+        else{
+            throw new RuntimeException("Attempted to create polygon with less than 3 points");
         }
     }
 
-    public Polygon(int color, List<Point> points){
-        this(color, points.toArray(new Point[0]));
-    }
-
-    public Polygon(List<Line> lines){
-        this.lines = lines;
-    }
-
-    public List<Line> getLines(){
+    public Line[] getLines(){
         return lines;
+    }
+
+    public Point[] getPoints() {
+        return points;
     }
 }

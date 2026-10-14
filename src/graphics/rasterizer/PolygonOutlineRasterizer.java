@@ -10,8 +10,8 @@ public class PolygonOutlineRasterizer {
 
     public void rasterize(Polygon polygon){
         var lines = polygon.getLines();
-        for (int i = 0; i < lines.size(); i++) {
-            lineRasterizer.rasterize(lines.get(i));
+        for (int i = 0; i < lines.length; i++) {
+            lineRasterizer.rasterize(lines[i]);
         }
     }
 }
