@@ -10,7 +10,7 @@ public class FilledTriangleRasterizer {
         this.raster = raster;
     }
 
-    public void raster(BasicTriangle triangle){
+    public void rasterize(BasicTriangle triangle){
         TriangleIterator.iterate(triangle.getPointA(), triangle.getPointB(), triangle.getPointC(), (x, y)->{
             raster.setPixel(x, y, triangle.getColor());
         });

@@ -28,6 +28,7 @@ public class Controller {
 
     private final LineRasterizer lineRasterizer;
     private final PolygonOutlineRasterizer polygonRasterizer;
+    private final FilledTriangleRasterizer filledTriangleRasterizer;
     private final ColorTriangleRasterizer colorTriangleRasterizer;
     private final TextureTriangleRasterizer textureTriangleRasterizer;
 
@@ -49,6 +50,7 @@ public class Controller {
         this.toolbar = toolbar;
         this.lineRasterizer = new TrivialLineRasterizer(canvas.getRaster());
         this.polygonRasterizer = new PolygonOutlineRasterizer(lineRasterizer);
+        this.filledTriangleRasterizer = new FilledTriangleRasterizer(canvas.getRaster());
         this.colorTriangleRasterizer = new ColorTriangleRasterizer(canvas.getRaster());
         this.textureTriangleRasterizer = new TextureTriangleRasterizer(canvas.getRaster());
     }
@@ -59,7 +61,10 @@ public class Controller {
 
         controllers = java.util.List.of(
                 new LineDrawerController(lineRasterizer),
-                new PolygonDrawerController(polygonRasterizer, lineRasterizer)
+                new PolygonDrawerController(polygonRasterizer, lineRasterizer),
+                new FilledTriangleDrawerController(lineRasterizer, filledTriangleRasterizer),
+                new RgbTriangleDrawerController(lineRasterizer, colorTriangleRasterizer),
+                new TexturedTriangleDrawerController(lineRasterizer, textureTriangleRasterizer)
         );
 
         toolbar.init(this::selectedControllerChange, controllers.stream().map(SubController::getName).toList());
