@@ -5,6 +5,7 @@ import model.*;
 import model.Point;
 import model.Polygon;
 import view.Canvas;
+import view.Toolbar;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -23,6 +24,8 @@ import java.util.ArrayList;
 public class Controller {
 
     private final Canvas canvas;
+    private final Toolbar toolbar;
+
     private final LineRasterizer lineRasterizer;
     private final PolygonOutlineRasterizer polygonRasterizer;
     private final ColorTriangleRasterizer colorTriangleRasterizer;
@@ -32,14 +35,18 @@ public class Controller {
     private final int POLYGON_COLOR = Color.WHITE.getRGB();
 
     private final java.util.List<Line> previewLines = new ArrayList<>();
-    private final java.util.List<Point> polyPoints = new ArrayList<>();
+    private final java.util.List<Point> polygonPoints = new ArrayList<>();
+    private java.util.List<SubController> controllers;
     private Polygon polygon = new Polygon(POLYGON_COLOR);
+
+    private int selectedControllerIndex = 0;
 
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Constructors -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-    public Controller(Canvas canvas) {
+    public Controller(Canvas canvas, Toolbar toolbar) {
         this.canvas = canvas;
+        this.toolbar = toolbar;
         this.lineRasterizer = new TrivialLineRasterizer(canvas.getRaster());
         this.polygonRasterizer = new PolygonOutlineRasterizer(lineRasterizer);
         this.colorTriangleRasterizer = new ColorTriangleRasterizer(canvas.getRaster());
@@ -47,56 +54,67 @@ public class Controller {
     }
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Main functions -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-
-    private java.util.List<Point> polygonPoints = new ArrayList<>();
-
-    float rotation = 0;
-
     public void init() {
         canvas.clear();
 
-        /*
-        Point a = new Point(20, 300);
-        Point b = new Point(170, 20);
-        Point c = new Point(320, 300);
-        Point d = new Point(470, 20);
+        controllers = java.util.List.of(
+                new LineDrawerController(lineRasterizer),
+                new PolygonDrawerController(polygonRasterizer, lineRasterizer)
+        );
 
-        colorTriangleRasterizer.rasterize(new VertexTriangle(new Vertex(a, 255, 0, 0), new Vertex(b, 0, 255, 0), new Vertex(c, 0, 0, 255)));
-        colorTriangleRasterizer.rasterize(new VertexTriangle(new Vertex(d, 0, 0, 0), new Vertex(b, 0, 255, 0), new Vertex(c, 0, 0, 255)));
-        */
+        toolbar.init(this::selectedControllerChange, controllers.stream().map(SubController::getName).toList());
+        controllers.get(0).enable();
 
         canvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
+                controllers.get(selectedControllerIndex).mousePressed(e);
+                render();
                 if(e.getButton() == MouseEvent.BUTTON3){
 
-                }
+                }/*
                 else if(e.getButton() == MouseEvent.BUTTON1){
                     polygonPoints.add(new Point(e.getX(), e.getY()));
                     polygon = new Polygon(POLYGON_COLOR, polygonPoints);
                     render();
-                }
+                }*/
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
+                controllers.get(selectedControllerIndex).mouseReleased(e);
+                render();
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                controllers.get(selectedControllerIndex).mouseClicked(e);
+                render();
             }
         });
         canvas.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                if(e.getKeyCode() == KeyEvent.VK_C){
+                controllers.get(selectedControllerIndex).keyPressed(e);
 
+                if(e.getKeyCode() == KeyEvent.VK_C){
+                    for (var c : controllers)
+                        c.clear();
                 }
+
+                render();
             }
         });
         canvas.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
                 super.mouseMoved(e);
+                controllers.get(selectedControllerIndex).mouseMoved(e);
+                /*
                 if (polygonPoints.size()>0){
                     previewLines.clear();
                     previewLines.add(new Line(polygonPoints.get(0), new Point(e.getX(), e.getY()), POLYGON_PREVIEW_COLOR));
@@ -104,10 +122,27 @@ public class Controller {
                     if(polygonPoints.size()>1){
                         previewLines.add(new Line(polygonPoints.get(polygonPoints.size()-1), new Point(e.getX(), e.getY()), POLYGON_PREVIEW_COLOR));
                     }
-                }
+                }*/
+                render();
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
+                controllers.get(selectedControllerIndex).mouseDragged(e);
                 render();
             }
         });
+    }
+
+    private void selectedControllerChange(int index){
+        controllers.get(selectedControllerIndex).disable();
+        controllers.get(index).enable();
+        selectedControllerIndex = index;
+
+        canvas.grabFocus();
+
+        render();
     }
 
     public void render(){
@@ -117,6 +152,10 @@ public class Controller {
 
         for (var line : previewLines){
             lineRasterizer.rasterize(line);
+        }
+
+        for (var c : controllers){
+            c.render();
         }
 
         canvas.repaint();
