@@ -10,6 +10,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static controller.Controller.LINE_INTERACTION_DISTANCE;
+import static controller.Controller.LINE_INTERACTION_DISTANCE_SQUARED;
+
 public class LineDrawerController extends SubController {
     private static final int LINE_COLOR = Color.BLACK.getRGB();
     private static final int PREVIEW_LINE_COLOR = Color.RED.getRGB();
@@ -20,6 +23,8 @@ public class LineDrawerController extends SubController {
 
     private Point previewLineStart = null;
     private Line previewLine = null;
+    //First point is the one edited
+    private Line editedLine = null;
 
     public LineDrawerController(LineRasterizer lineRasterizer)
     {
@@ -34,7 +39,28 @@ public class LineDrawerController extends SubController {
     @Override
     public void mousePressed(MouseEvent e) {
         super.mousePressed(e);
-        previewLineStart = Point.fromMouseEvent(e);
+        if(e.getButton() == MouseEvent.BUTTON1) {
+            previewLineStart = Point.fromMouseEvent(e);
+        }
+        else if (e.getButton() == MouseEvent.BUTTON3){
+            Point p = Point.fromMouseEvent(e);
+            for (int i = 0; i < lines.size(); i++) {
+                var l = lines.get(i);
+
+                if(l.getPointA().distanceSquaredTo(p) <= LINE_INTERACTION_DISTANCE_SQUARED){
+                    editedLine = new Line(Point.fromMouseEvent(e), l.getPointB(), l.getColor());
+
+                    lines.remove(i);
+                    i = lines.size();
+                }
+                else if(l.getPointB().distanceSquaredTo(p) <= LINE_INTERACTION_DISTANCE_SQUARED) {
+                    editedLine = new Line(Point.fromMouseEvent(e), l.getPointA(), l.getColor());
+
+                    lines.remove(i);
+                    i = lines.size();
+                }
+            }
+        }
     }
 
     @Override
@@ -47,7 +73,11 @@ public class LineDrawerController extends SubController {
         }
         else{
             previewLine = null;
-            throw new RuntimeException("Line start wasn't defined");
+        }
+
+        if(editedLine!=null){
+            lines.add(editedLine);
+            editedLine = null;
         }
     }
 
@@ -56,6 +86,9 @@ public class LineDrawerController extends SubController {
         super.mouseDragged(e);
         if (previewLineStart!=null){
             previewLine = new Line(previewLineStart, Point.fromMouseEvent(e), PREVIEW_LINE_COLOR);
+        }
+        if (editedLine!=null){
+            editedLine = new Line(Point.fromMouseEvent(e), editedLine.getPointB(), editedLine.getColor());
         }
     }
 
@@ -73,7 +106,7 @@ public class LineDrawerController extends SubController {
             int length = lines.size();
             for (int i = 0; i < length; i++) {
                 var l = lines.get(i);
-                if(l.getNormalSize(mousePos)<20&&l.containsX(mousePos.getX())&&l.containsY(mousePos.getY())){
+                if(l.getNormalSize(mousePos)<=LINE_INTERACTION_DISTANCE&&l.containsX(mousePos.getX())&&l.containsY(mousePos.getY())){
                     lines.remove(i);
                     i--;
                     length--;
@@ -84,9 +117,10 @@ public class LineDrawerController extends SubController {
 
     @Override
     public void render() {
-        if(previewLine!=null){
+        if(previewLine!=null)
             lineRasterizer.rasterize(previewLine);
-        }
+        if(editedLine!=null)
+            lineRasterizer.rasterize(editedLine);
         for (var l : lines){
             lineRasterizer.rasterize(l);
         }

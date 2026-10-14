@@ -24,6 +24,10 @@ public class Controller {
     private final ColorTriangleRasterizer colorTriangleRasterizer;
     private final TextureTriangleRasterizer textureTriangleRasterizer;
 
+    public static final int LINE_INTERACTION_DISTANCE = 20;
+    public static final int LINE_INTERACTION_DISTANCE_SQUARED = LINE_INTERACTION_DISTANCE * LINE_INTERACTION_DISTANCE;
+
+
     private java.util.List<SubController> controllers;
 
     private int selectedControllerIndex = 0;

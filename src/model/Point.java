@@ -22,4 +22,10 @@ public class Point {
     public int getY() {
         return y;
     }
+
+    public int distanceSquaredTo(Point p) {
+        int x = p.getX()-getX();
+        int y = p.getY()-getY();
+        return x*x+y*y;
+    }
 }
