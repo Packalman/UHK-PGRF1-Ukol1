@@ -29,12 +29,6 @@ public class Canvas extends JPanel {
         setPreferredSize(new Dimension(width, height));
         raster = new RasterImage(width, height);
         clear();
-
-        for (int i = 0; i < 200; i++) {
-            for (int j = 0; j < 200; j++) {
-
-            }
-        }
     }
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Rendering -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
