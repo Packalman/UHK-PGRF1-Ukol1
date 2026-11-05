@@ -1,5 +1,7 @@
 package controller;
 
+import graphics.filler.CollectionSeedFiller;
+import graphics.filler.SeedFiller;
 import graphics.rasterizer.*;
 import view.Canvas;
 import view.Toolbar;
@@ -23,6 +25,7 @@ public class Controller {
     private final FilledTriangleRasterizer filledTriangleRasterizer;
     private final ColorTriangleRasterizer colorTriangleRasterizer;
     private final TextureTriangleRasterizer textureTriangleRasterizer;
+    private final SeedFiller seedFiller;
 
     public static final int LINE_INTERACTION_DISTANCE = 20;
     public static final int LINE_INTERACTION_DISTANCE_SQUARED = LINE_INTERACTION_DISTANCE * LINE_INTERACTION_DISTANCE;
@@ -43,6 +46,7 @@ public class Controller {
         this.filledTriangleRasterizer = new FilledTriangleRasterizer(canvas.getRaster());
         this.colorTriangleRasterizer = new ColorTriangleRasterizer(canvas.getRaster());
         this.textureTriangleRasterizer = new TextureTriangleRasterizer(canvas.getRaster());
+        this.seedFiller = new CollectionSeedFiller(canvas.getRaster());
     }
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Main functions -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -54,7 +58,8 @@ public class Controller {
                 new PolygonDrawerController(polygonRasterizer, lineRasterizer),
                 new FilledTriangleDrawerController(lineRasterizer, filledTriangleRasterizer),
                 new RgbTriangleDrawerController(lineRasterizer, colorTriangleRasterizer),
-                new TexturedTriangleDrawerController(lineRasterizer, textureTriangleRasterizer)
+                new TexturedTriangleDrawerController(lineRasterizer, textureTriangleRasterizer),
+                new SeedFillController(canvas.getRaster(), seedFiller)
         );
 
         toolbar.init(this::selectedControllerChange, controllers.stream().map(SubController::getName).toList());

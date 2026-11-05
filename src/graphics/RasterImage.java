@@ -39,4 +39,14 @@ public class RasterImage implements Raster<Integer>{
             buffer.setRGB(x, y, value);
         }
     }
+
+    @Override
+    public Integer getPixel(int x, int y){
+        if(x>=0 && y>=0 && x<getWidth() && y<getHeight()) {
+            return buffer.getRGB(x, y);
+        }
+        else{
+            return null;
+        }
+    }
 }

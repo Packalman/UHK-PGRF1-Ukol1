@@ -9,4 +9,6 @@ public interface Raster<P> {
     void clear(P value);
     void present(Graphics graphics);
     void setPixel(int x, int y, P value);
+
+    P getPixel(int x, int y);
 }
