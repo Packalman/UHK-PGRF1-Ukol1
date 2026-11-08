@@ -1,5 +1,8 @@
-package controller;
+package controller.sub_controllers_old;
 
+import controller.Controller;
+import controller.SubController;
+import graphics.drawable.LineDrawable;
 import graphics.rasterizer.LineRasterizer;
 import model.Line;
 import model.Point;
@@ -17,6 +20,7 @@ public class LineDrawerController extends SubController {
     private static final int LINE_COLOR = Color.BLACK.getRGB();
     private static final int PREVIEW_LINE_COLOR = Color.RED.getRGB();
 
+    private final Controller.DrawableSubmitter submitter;
     private final LineRasterizer lineRasterizer;
 
     private final List<Line> lines = new ArrayList<>();
@@ -26,8 +30,9 @@ public class LineDrawerController extends SubController {
     //First point is the one edited
     private Line editedLine = null;
 
-    public LineDrawerController(LineRasterizer lineRasterizer)
+    public LineDrawerController(Controller.DrawableSubmitter submitter, LineRasterizer lineRasterizer)
     {
+        this.submitter = submitter;
         this.lineRasterizer = lineRasterizer;
     }
 
@@ -68,6 +73,7 @@ public class LineDrawerController extends SubController {
         super.mouseReleased(e);
         if(previewLineStart!=null){
             lines.add(new Line(previewLineStart, Point.fromMouseEvent(e), LINE_COLOR));
+            submitter.submit(new LineDrawable(lineRasterizer, lines.getLast()));
             previewLine = null;
             previewLineStart = null;
         }
@@ -77,6 +83,7 @@ public class LineDrawerController extends SubController {
 
         if(editedLine!=null){
             lines.add(editedLine);
+            submitter.submit(new LineDrawable(lineRasterizer, editedLine));
             editedLine = null;
         }
     }
@@ -106,7 +113,7 @@ public class LineDrawerController extends SubController {
             int length = lines.size();
             for (int i = 0; i < length; i++) {
                 var l = lines.get(i);
-                if(l.getNormalSize(mousePos)<=LINE_INTERACTION_DISTANCE&&
+                if(l.getNormalSize(mousePos.getX(), mousePos.getY())<=LINE_INTERACTION_DISTANCE&&
                         l.containsX(mousePos.getX(), LINE_INTERACTION_DISTANCE) &&
                         l.containsY(mousePos.getY(), LINE_INTERACTION_DISTANCE)){
                     lines.remove(i);
@@ -123,9 +130,6 @@ public class LineDrawerController extends SubController {
             lineRasterizer.rasterize(previewLine);
         if(editedLine!=null)
             lineRasterizer.rasterize(editedLine);
-        for (var l : lines){
-            lineRasterizer.rasterize(l);
-        }
     }
 
     @Override

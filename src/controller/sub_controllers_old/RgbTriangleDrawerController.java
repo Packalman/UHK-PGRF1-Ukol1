@@ -1,4 +1,4 @@
-package controller;
+package controller.sub_controllers_old;
 
 import graphics.rasterizer.ColorTriangleRasterizer;
 import graphics.rasterizer.LineRasterizer;

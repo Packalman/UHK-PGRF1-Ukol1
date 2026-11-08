@@ -1,12 +1,19 @@
 package controller;
 
+import controller.sub_controllers.drawable_creators.LineCreatorSubController;
+import controller.sub_controllers.SelectorSubController;
+import controller.sub_controllers.drawable_modifier.DrawableLineModifier;
+import graphics.drawable.Drawable;
+import graphics.drawable.LineDrawable;
 import graphics.filler.CollectionSeedFiller;
 import graphics.filler.SeedFiller;
 import graphics.rasterizer.*;
 import view.Canvas;
 import view.Toolbar;
+import view.Window;
 
 import java.awt.event.*;
+import java.util.*;
 
 /**
  * Handles user input and controls the application flow related to the {@link Canvas}.
@@ -22,6 +29,7 @@ public class Controller {
 
     private final LineRasterizer lineRasterizer;
     private final PolygonOutlineRasterizer polygonRasterizer;
+    private final FilledCircleRasterizer filledCircleRasterizer;
     private final FilledTriangleRasterizer filledTriangleRasterizer;
     private final ColorTriangleRasterizer colorTriangleRasterizer;
     private final TextureTriangleRasterizer textureTriangleRasterizer;
@@ -31,9 +39,11 @@ public class Controller {
     public static final int LINE_INTERACTION_DISTANCE_SQUARED = LINE_INTERACTION_DISTANCE * LINE_INTERACTION_DISTANCE;
 
 
-    private java.util.List<SubController> controllers;
+    private List<Drawable> drawables = new ArrayList<>();
+    private DrawableSubmitter drawableSubmitter;
 
-    private int selectedControllerIndex = 0;
+    private ControllerType activeController;
+    private final Dictionary<ControllerType, SubController> controllers;
 
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Constructors -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
@@ -43,47 +53,45 @@ public class Controller {
         this.toolbar = toolbar;
         this.lineRasterizer = new TrivialLineRasterizer(canvas.getRaster());
         this.polygonRasterizer = new PolygonOutlineRasterizer(lineRasterizer);
+        this.filledCircleRasterizer = new RowFilledCircleRasterizer(canvas.getRaster());
         this.filledTriangleRasterizer = new FilledTriangleRasterizer(canvas.getRaster());
         this.colorTriangleRasterizer = new ColorTriangleRasterizer(canvas.getRaster());
         this.textureTriangleRasterizer = new TextureTriangleRasterizer(canvas.getRaster());
         this.seedFiller = new CollectionSeedFiller(canvas.getRaster());
+
+        this.controllers = new Hashtable<>();
+        drawableSubmitter = new DrawableSubmitter(drawables);
     }
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Main functions -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
     public void init() {
         canvas.clear();
 
-        controllers = java.util.List.of(
-                new LineDrawerController(lineRasterizer),
-                new PolygonDrawerController(polygonRasterizer, lineRasterizer),
-                new FilledTriangleDrawerController(lineRasterizer, filledTriangleRasterizer),
-                new RgbTriangleDrawerController(lineRasterizer, colorTriangleRasterizer),
-                new TexturedTriangleDrawerController(lineRasterizer, textureTriangleRasterizer),
-                new SeedFillController(canvas.getRaster(), seedFiller)
-        );
+        toolbar.init(this::toolbarButtonPressed, canvas);
 
-        toolbar.init(this::selectedControllerChange, controllers.stream().map(SubController::getName).toList());
-        controllers.get(0).enable();
+        controllers.put(ControllerType.SELECT, new SelectorSubController(filledCircleRasterizer, drawables, this::selectedDrawableChanged));
+        controllers.put(ControllerType.LINES, new LineCreatorSubController(drawableSubmitter, lineRasterizer));
+        controllers.put(ControllerType.MODIFY_LINE, new DrawableLineModifier(filledCircleRasterizer, lineRasterizer, this::handleDrawableModified));
 
         canvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                controllers.get(selectedControllerIndex).mousePressed(e);
+                controllers.get(activeController).mousePressed(e);
                 render();
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                controllers.get(selectedControllerIndex).mouseReleased(e);
+                controllers.get(activeController).mouseReleased(e);
                 render();
             }
 
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                controllers.get(selectedControllerIndex).mouseClicked(e);
+                controllers.get(activeController).mouseClicked(e);
                 render();
             }
         });
@@ -91,13 +99,19 @@ public class Controller {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                controllers.get(selectedControllerIndex).keyPressed(e);
+                controllers.get(activeController).keyPressed(e);
 
                 if(e.getKeyCode() == KeyEvent.VK_C){
-                    for (var c : controllers)
-                        c.clear();
+                    clear();
                 }
 
+                render();
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                controllers.get(activeController).keyReleased(e);
                 render();
             }
         });
@@ -105,36 +119,90 @@ public class Controller {
             @Override
             public void mouseMoved(MouseEvent e) {
                 super.mouseMoved(e);
-                controllers.get(selectedControllerIndex).mouseMoved(e);
+                controllers.get(activeController).mouseMoved(e);
                 render();
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
-                controllers.get(selectedControllerIndex).mouseDragged(e);
+                controllers.get(activeController).mouseDragged(e);
                 render();
             }
         });
     }
 
-    private void selectedControllerChange(int index){
-        controllers.get(selectedControllerIndex).disable();
-        controllers.get(index).enable();
-        selectedControllerIndex = index;
-
+    private void toolbarButtonPressed(Toolbar.ToolbarButtonType toolbarButton) {
         canvas.grabFocus();
+        if(toolbarButton == Toolbar.ToolbarButtonType.CLEAR){
+            clear();
+        }
+        else{
+            if(activeController!=null)
+                controllers.get(activeController).clear();
+            switch (toolbarButton){
+                case SELECT -> activeController = ControllerType.SELECT;
+                case LINES -> activeController = ControllerType.LINES;
+            }
+        }
+    }
 
+    private void selectedDrawableChanged(Drawable drawable, MouseEvent e){
+        if(drawable instanceof LineDrawable lineDrawable){
+            activeController = ControllerType.MODIFY_LINE;
+            ((DrawableLineModifier)controllers.get(activeController)).setModifiedDrawable(lineDrawable, e);
+            drawables.remove(lineDrawable);
+
+            render();
+        }
+    }
+
+    private void handleDrawableModified(Drawable... newDrawables){
+        activeController = ControllerType.SELECT;
+        drawables.addAll(Arrays.asList(newDrawables));
         render();
     }
 
-    public void render(){
+    private void clear(){
+        var c = controllers.elements();
+        while (c.hasMoreElements()){
+            c.nextElement().clear();
+        }
+        drawables.clear();
+    }
+
+
+    private void render(){
         canvas.clear();
 
-        for (var c : controllers){
-            c.render();
+        for (var d : drawables){
+            d.draw();
         }
 
+        controllers.get(activeController).render();
+
         canvas.repaint();
+    }
+
+    public class DrawableSubmitter{
+        private final List<Drawable> drawables;
+
+        public DrawableSubmitter(List<Drawable> drawables) {
+            this.drawables = drawables;
+        }
+
+        public void submit(Drawable drawable){
+            drawables.add(drawable);
+            System.out.println("Added line");
+        }
+    }
+
+    private enum ControllerType {
+        SELECT,
+        MODIFY_LINE,
+        MODIFY_POLYGONS,
+        LINES,
+        POLYGONS,
+        RECTANGLES
     }
 }

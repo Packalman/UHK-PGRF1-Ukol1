@@ -1,5 +1,6 @@
-package controller;
+package controller.sub_controllers_old;
 
+import controller.SubController;
 import graphics.rasterizer.LineRasterizer;
 import model.Line;
 import model.Point;

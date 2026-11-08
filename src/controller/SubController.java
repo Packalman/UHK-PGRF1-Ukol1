@@ -4,19 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public abstract class SubController {
-    private boolean enabled = false;
-    public abstract String getName();
-
-    public void enable(){
-        enabled = true;
-    }
-    public void disable(){
-        enabled = false;
-    }
-
-    public boolean isEnabled(){
-        return enabled;
-    }
+    public String getName(){return "";}
 
     public void mouseClicked(MouseEvent e){
 
@@ -39,6 +27,10 @@ public abstract class SubController {
     }
 
     public void keyPressed(KeyEvent e){
+
+    }
+
+    public void keyReleased(KeyEvent e){
 
     }
 

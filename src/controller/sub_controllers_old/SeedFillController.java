@@ -1,5 +1,6 @@
-package controller;
+package controller.sub_controllers_old;
 
+import controller.SubController;
 import graphics.Raster;
 import graphics.filler.SeedFiller;
 import model.Point;

@@ -52,10 +52,7 @@ public class Line {
 
     //https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
     /// Vrací vzdálenost bodu od přímky
-    public double getNormalSize(Point point){
-        int x0 = point.getX();
-        int y0 = point.getY();
-
+    public double getNormalSize(int x0, int y0){
         int x1 = pointA.getX();
         int x2 = pointB.getX();
         int y1 = pointA.getY();
@@ -63,5 +60,9 @@ public class Line {
 
         return Math.abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)/
                 Math.sqrt(Math.pow(y2-y1,2)+Math.pow(x2-x1,2));
+    }
+
+    public boolean contains(int x, int y, int tolerance) {
+        return containsX(x, tolerance) && containsY(y, tolerance) && getNormalSize(x, y) < tolerance;
     }
 }

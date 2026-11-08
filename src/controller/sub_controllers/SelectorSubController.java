@@ -1,0 +1,78 @@
+package controller.sub_controllers;
+
+import controller.SubController;
+import graphics.drawable.Drawable;
+import graphics.rasterizer.FilledCircleRasterizer;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.List;
+
+public class SelectorSubController extends SubController {
+    private final FilledCircleRasterizer filledCircleRasterizer;
+    private final List<Drawable> drawables;
+    private final DrawableSelectedHandler drawableSelectedHandler;
+
+    private static final int PREVIEW_CIRCLE_SIZE = 7;
+    private static final int PREVIEW_COLOR = new Color(255, 0, 0).getRGB();
+
+    private Drawable howerDrawable;
+
+
+    public SelectorSubController(FilledCircleRasterizer filledCircleRasterizer, List<Drawable> drawables, DrawableSelectedHandler drawableSelectedHandler) {
+        this.filledCircleRasterizer = filledCircleRasterizer;
+        this.drawables = drawables;
+        this.drawableSelectedHandler = drawableSelectedHandler;
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        super.mouseMoved(e);
+        for (int i = 0; i < drawables.size(); i++) {
+            if(drawables.get(i).isPointNear(e.getX(), e.getY())){
+                howerDrawable = drawables.get(i);
+                return;
+            }
+        }
+        howerDrawable = null;
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        super.keyReleased(e);
+        if(e.getKeyCode() == KeyEvent.VK_DELETE){
+            if(howerDrawable!=null){
+                drawables.remove(howerDrawable);
+                howerDrawable = null;
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        super.mousePressed(e);
+        if(howerDrawable!=null){
+            drawableSelectedHandler.select(howerDrawable, e);
+            clear();
+        }
+    }
+
+    @Override
+    public void render() {
+        if(howerDrawable!=null){
+            for (var point : howerDrawable.getPoints()){
+                filledCircleRasterizer.rasterize(point.getX(), point.getY(), PREVIEW_CIRCLE_SIZE, PREVIEW_COLOR);
+            }
+        }
+    }
+
+    @Override
+    public void clear() {
+        howerDrawable = null;
+    }
+
+    public interface DrawableSelectedHandler{
+        void select(Drawable drawable, MouseEvent e);
+    }
+}
