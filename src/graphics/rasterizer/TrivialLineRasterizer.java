@@ -2,6 +2,7 @@ package graphics.rasterizer;
 
 import graphics.Raster;
 import model.Line;
+import model.Point;
 
 /// Rasterizér využívající triviální algoritmus
 public class TrivialLineRasterizer implements LineRasterizer{
@@ -13,10 +14,16 @@ public class TrivialLineRasterizer implements LineRasterizer{
 
     @Override
     public void rasterize(Line line) {
-        rasterize(line.getPointA().getX(), line.getPointB().getX(), line.getPointA().getY(), line.getPointB().getY(), line.getColor());
+        rasterize(line.getPointA(), line.getPointB(), line.getColor());
     }
 
-    private void rasterize(int x1, int x2, int y1, int y2, int color){
+    @Override
+    public void rasterize(Point a, Point b, int color) {
+        rasterize(a.getX(), a.getY(), b.getX(), b.getY(), color);
+    }
+
+    @Override
+    public void rasterize(int x1, int y1, int x2, int y2, int color){
         // Rovnice: y=kx+q
         if(x1==x2){// Řešení pro vertikální čáru
             if(y1>y2){
