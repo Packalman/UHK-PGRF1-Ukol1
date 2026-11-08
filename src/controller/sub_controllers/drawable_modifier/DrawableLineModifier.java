@@ -19,7 +19,7 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     private Line modifiedLine;
     private int modifiedPointIndex = -1;
 
-    private boolean isMouseNear = false;//TODO: canMove?
+    private boolean isMouseNear = false;
 
 
     public DrawableLineModifier(FilledCircleRasterizer circleRasterizer, LineRasterizer lineRasterizer, DrawableModifiedNotifier notifier) {
@@ -94,8 +94,6 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
         modifiedLine = new Line(p[0], p[1], drawable.getColor());
 
         updateModifiedPointIndex(e.getX(), e.getY());
-
-        //TODO: reconstruct Drawable or check for mouse distance elsewhere (the previous drawable is a ghost)
 
         isMouseNear = getModifiedDrawableToModify().isPointNear(e.getX(), e.getY());
     }

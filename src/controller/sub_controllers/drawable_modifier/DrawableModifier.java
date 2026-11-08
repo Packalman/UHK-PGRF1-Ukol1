@@ -27,7 +27,6 @@ public abstract class DrawableModifier<T extends Drawable> extends SubController
     }
 
     public interface DrawableModifiedNotifier {
-        //TODO: what if the modifier produces more, than one new drawable
         void notify(Drawable... newDrawables);
     }
 }
