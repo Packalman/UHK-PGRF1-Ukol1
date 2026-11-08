@@ -59,7 +59,7 @@ public class Toolbar extends JToolBar {
                     case KeyEvent.VK_2 -> handleButtonPressed(listener, ToolbarButtonType.LINES);
                     case KeyEvent.VK_3 -> handleButtonPressed(listener, ToolbarButtonType.POLYGON);
                     case KeyEvent.VK_4 -> handleButtonPressed(listener, ToolbarButtonType.RECTANGLES);
-                    case KeyEvent.VK_5 -> handleButtonPressed(listener, ToolbarButtonType.CLEAR);
+                    case KeyEvent.VK_5, KeyEvent.VK_C -> handleButtonPressed(listener, ToolbarButtonType.CLEAR);
                 }
             }
         });
@@ -68,10 +68,12 @@ public class Toolbar extends JToolBar {
     }
 
     private void handleButtonPressed(ToolbarButtonListener listener, ToolbarButtonType buttonType){
-        if(previousButton!=null)
-            typeToJButton.get(previousButton).setEnabled(true);
-        typeToJButton.get(buttonType).setEnabled(false);
-        previousButton = buttonType;
+        if(buttonType!=ToolbarButtonType.CLEAR){
+            if(previousButton!=null)
+                typeToJButton.get(previousButton).setEnabled(true);
+            typeToJButton.get(buttonType).setEnabled(false);
+            previousButton = buttonType;
+        }
 
         listener.click(buttonType);
     }

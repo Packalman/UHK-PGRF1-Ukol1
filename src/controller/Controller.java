@@ -100,11 +100,6 @@ public class Controller {
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
                 controllers.get(activeController).keyPressed(e);
-
-                if(e.getKeyCode() == KeyEvent.VK_C){
-                    clear();
-                }
-
                 render();
             }
 
