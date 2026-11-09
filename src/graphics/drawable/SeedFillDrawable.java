@@ -17,7 +17,7 @@ public class SeedFillDrawable implements Drawable{
     }
 
     @Override
-    public void draw() {
+    public void draw(boolean selectMode) {
         seedFiller.fillReplaceBackground(point.getX(), point.getY(), replaceColor, fillColor);
     }
 

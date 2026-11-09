@@ -171,9 +171,9 @@ public class Controller {
 
     private void render(){
         canvas.clear();
-
+        boolean selectMode = activeController == ControllerType.SELECT;
         for (var d : drawables){
-            d.draw();
+            d.draw(selectMode);
         }
 
         controllers.get(activeController).render();

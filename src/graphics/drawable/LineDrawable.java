@@ -14,7 +14,7 @@ public class LineDrawable implements Drawable {
     }
 
     @Override
-    public void draw() {
+    public void draw(boolean selectMode) {
         lineRasterizer.rasterize(line);
     }
 

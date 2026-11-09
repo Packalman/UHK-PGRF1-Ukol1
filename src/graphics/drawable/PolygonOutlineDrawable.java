@@ -14,7 +14,7 @@ public class PolygonOutlineDrawable implements Drawable{
     }
 
     @Override
-    public void draw() {
+    public void draw(boolean selectMode) {
         polygonOutlineRasterizer.rasterize(polygon);
     }
 
