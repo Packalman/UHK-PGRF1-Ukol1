@@ -2,6 +2,7 @@ package controller;
 
 import controller.sub_controllers.drawable_creators.LineCreatorSubController;
 import controller.sub_controllers.SelectorSubController;
+import controller.sub_controllers.drawable_creators.PolygonCreatorSubController;
 import controller.sub_controllers.drawable_modifier.DrawableLineModifier;
 import graphics.drawable.Drawable;
 import graphics.drawable.LineDrawable;
@@ -10,7 +11,6 @@ import graphics.filler.SeedFiller;
 import graphics.rasterizer.*;
 import view.Canvas;
 import view.Toolbar;
-import view.Window;
 
 import java.awt.event.*;
 import java.util.*;
@@ -71,6 +71,7 @@ public class Controller {
 
         controllers.put(ControllerType.SELECT, new SelectorSubController(filledCircleRasterizer, drawables, this::selectedDrawableChanged));
         controllers.put(ControllerType.LINES, new LineCreatorSubController(drawableSubmitter, lineRasterizer));
+        controllers.put(ControllerType.POLYGONS, new PolygonCreatorSubController(drawableSubmitter, lineRasterizer, polygonRasterizer));
         controllers.put(ControllerType.MODIFY_LINE, new DrawableLineModifier(filledCircleRasterizer, lineRasterizer, this::handleDrawableModified));
 
         canvas.addMouseListener(new MouseAdapter() {
@@ -134,10 +135,11 @@ public class Controller {
         }
         else{
             if(activeController!=null)
-                controllers.get(activeController).clear();
+                controllers.get(activeController).disable();
             switch (toolbarButton){
                 case SELECT -> activeController = ControllerType.SELECT;
                 case LINES -> activeController = ControllerType.LINES;
+                case POLYGON -> activeController = ControllerType.POLYGONS;
             }
         }
     }
@@ -188,7 +190,6 @@ public class Controller {
 
         public void submit(Drawable drawable){
             drawables.add(drawable);
-            System.out.println("Added line");
         }
     }
 

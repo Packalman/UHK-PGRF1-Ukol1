@@ -36,4 +36,6 @@ public abstract class SubController {
 
     public abstract void render();
     public abstract void clear();
+
+    public void disable(){};
 }

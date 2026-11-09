@@ -107,6 +107,11 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
 
     @Override
     public void clear() {
+
+    }
+
+    @Override
+    public void disable() {
         if(modifiedLine!=null)
             notifyDrawableModified(new LineDrawable(lineRasterizer, modifiedLine));
     }

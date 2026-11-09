@@ -27,10 +27,8 @@ public class PolygonOutlineDrawable implements Drawable{
     public boolean isPointNear(int x, int y) {
         var lines = polygon.getLines();
         for (int i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            if(line.getNormalSize(x, y)<15 && line.containsX(x, 15) && line.containsX(y, 15))
+            if(lines[i].contains(x, y, 15))
                 return true;
-
         }
         return false;
     }
