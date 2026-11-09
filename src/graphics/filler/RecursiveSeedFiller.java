@@ -12,11 +12,11 @@ public class RecursiveSeedFiller implements SeedFiller{
     }
 
     @Override
-    public boolean fillReplaceBackground(int x1, int y1, int targetColor, int fillColor) {
-        if(targetColor==fillColor || raster.getPixel(x1,y1)==null || raster.getPixel(x1,y1)!=targetColor)
+    public boolean fillReplaceColor(int x1, int y1, int oldColor, int fillColor) {
+        if(oldColor == fillColor || raster.getPixel(x1,y1)==null || raster.getPixel(x1,y1) != oldColor)
             return false;
 
-        fillRegion(x1, y1, targetColor, fillColor);
+        fillRegion(x1, y1, oldColor, fillColor);
 
         return true;
     }
@@ -27,16 +27,16 @@ public class RecursiveSeedFiller implements SeedFiller{
     }
 
 
-    private void fillRegion(int x, int y, int targetColor, int fillColor){
+    private void fillRegion(int x, int y, int oldColor, int fillColor){
         Integer color = raster.getPixel(x,y);
-        if(color == null || color != targetColor){
+        if(color == null || color != oldColor){
             return;
         }
 
         raster.setPixel(x, y, fillColor);
-        fillRegion(x+1, y, targetColor, fillColor);
-        fillRegion(x-1, y, targetColor, fillColor);
-        fillRegion(x, y+1, targetColor, fillColor);
-        fillRegion(x, y-1, targetColor, fillColor);
+        fillRegion(x+1, y, oldColor, fillColor);
+        fillRegion(x-1, y, oldColor, fillColor);
+        fillRegion(x, y+1, oldColor, fillColor);
+        fillRegion(x, y-1, oldColor, fillColor);
     }
 }

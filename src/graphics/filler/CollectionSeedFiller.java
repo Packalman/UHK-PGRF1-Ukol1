@@ -13,10 +13,9 @@ public class CollectionSeedFiller implements SeedFiller{
     }
 
     @Override
-    public boolean fillReplaceBackground(int x1, int y1, int targetColor, int fillColor) {
-        if(raster.getPixel(x1, y1) == null || targetColor == fillColor || raster.getPixel(x1, y1) != targetColor)
+    public boolean fillReplaceColor(int x1, int y1, int oldColor, int fillColor) {
+        if(raster.getPixel(x1, y1) == null || oldColor == fillColor || raster.getPixel(x1, y1) != oldColor)
             return false;
-
         Queue<Point> points = new ArrayDeque<>();
         points.add(new Point(x1, y1));
 
@@ -26,7 +25,7 @@ public class CollectionSeedFiller implements SeedFiller{
             int y = point.getY();
             var pixel = raster.getPixel(x, y);
 
-            if (pixel!=null && pixel==targetColor)
+            if (pixel != null && pixel == oldColor)
             {
                 raster.setPixel(x, y, fillColor);
                 points.add(new Point(x+1, y));

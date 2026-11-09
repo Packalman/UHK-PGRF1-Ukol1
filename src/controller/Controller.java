@@ -3,9 +3,12 @@ package controller;
 import controller.sub_controllers.drawable_creators.LineCreatorSubController;
 import controller.sub_controllers.SelectorSubController;
 import controller.sub_controllers.drawable_creators.PolygonCreatorSubController;
+import controller.sub_controllers.drawable_creators.SeedFillCreatorSubController;
 import controller.sub_controllers.drawable_modifier.DrawableLineModifier;
+import controller.sub_controllers.drawable_modifier.SeedFillModifier;
 import graphics.drawable.Drawable;
 import graphics.drawable.LineDrawable;
+import graphics.drawable.SeedFillDrawable;
 import graphics.filler.CollectionSeedFiller;
 import graphics.filler.SeedFiller;
 import graphics.rasterizer.*;
@@ -73,6 +76,8 @@ public class Controller {
         controllers.put(ControllerType.LINES, new LineCreatorSubController(drawableSubmitter, lineRasterizer));
         controllers.put(ControllerType.POLYGONS, new PolygonCreatorSubController(drawableSubmitter, lineRasterizer, polygonRasterizer));
         controllers.put(ControllerType.MODIFY_LINE, new DrawableLineModifier(filledCircleRasterizer, lineRasterizer, this::handleDrawableModified));
+        controllers.put(ControllerType.SEED_FILL, new SeedFillCreatorSubController(canvas.getRaster(), drawableSubmitter, seedFiller, filledCircleRasterizer));
+        controllers.put(ControllerType.MODIFY_SEED_FILL, new SeedFillModifier(canvas.getRaster(), filledCircleRasterizer, seedFiller, this::handleDrawableModified));
 
         canvas.addMouseListener(new MouseAdapter() {
             @Override
@@ -140,6 +145,7 @@ public class Controller {
                 case SELECT -> activeController = ControllerType.SELECT;
                 case LINES -> activeController = ControllerType.LINES;
                 case POLYGON -> activeController = ControllerType.POLYGONS;
+                case SEED_FILL -> activeController = ControllerType.SEED_FILL;
             }
         }
     }
@@ -149,6 +155,13 @@ public class Controller {
             activeController = ControllerType.MODIFY_LINE;
             ((DrawableLineModifier)controllers.get(activeController)).setModifiedDrawable(lineDrawable, e);
             drawables.remove(lineDrawable);
+
+            render();
+        }
+        if(drawable instanceof SeedFillDrawable seedFillDrawable){
+            activeController = ControllerType.MODIFY_SEED_FILL;
+            ((SeedFillModifier)controllers.get(activeController)).setModifiedDrawable(seedFillDrawable, e);
+            drawables.remove(seedFillDrawable);
 
             render();
         }
@@ -197,8 +210,10 @@ public class Controller {
         SELECT,
         MODIFY_LINE,
         MODIFY_POLYGONS,
+        MODIFY_SEED_FILL,
         LINES,
         POLYGONS,
-        RECTANGLES
+        RECTANGLES,
+        SEED_FILL,
     }
 }

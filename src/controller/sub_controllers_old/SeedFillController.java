@@ -34,7 +34,7 @@ public class SeedFillController extends SubController {
     @Override
     public void render() {
         if(seedPoint!=null){
-            seedFiller.fillReplaceBackground(seedPoint.getX(), seedPoint.getY(), raster.getPixel(seedPoint.getX(), seedPoint.getY()), Color.BLACK.getRGB());
+            seedFiller.fillReplaceColor(seedPoint.getX(), seedPoint.getY(), raster.getPixel(seedPoint.getX(), seedPoint.getY()), Color.BLACK.getRGB());
         }
     }
 
