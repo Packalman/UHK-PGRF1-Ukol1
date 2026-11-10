@@ -1,7 +1,5 @@
 package view;
 
-import graphics.RasterImage;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -16,6 +14,7 @@ public class Window extends JFrame {
 
     private final Canvas canvas;
     private final Toolbar toolBar;
+    private final Sidebar sidebar;
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Constructors -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
@@ -27,8 +26,10 @@ public class Window extends JFrame {
 
         canvas = new Canvas(width, height);
         toolBar = new Toolbar();
+        sidebar = new Sidebar(400, height);
 
         add(toolBar, BorderLayout.NORTH);
+        add(sidebar, BorderLayout.EAST);
         add(canvas);
         pack();
 
