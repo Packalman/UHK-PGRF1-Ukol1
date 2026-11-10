@@ -2,7 +2,7 @@ package controller.sub_controllers;
 
 import controller.SubController;
 import graphics.drawable.Drawable;
-import graphics.rasterizer.FilledCircleRasterizer;
+import graphics.rasterizer.RasterizerContext;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -10,7 +10,6 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class SelectorSubController extends SubController {
-    private final FilledCircleRasterizer filledCircleRasterizer;
     private final List<Drawable> drawables;
     private final DrawableSelectedHandler drawableSelectedHandler;
 
@@ -20,8 +19,8 @@ public class SelectorSubController extends SubController {
     private Drawable howerDrawable;
 
 
-    public SelectorSubController(FilledCircleRasterizer filledCircleRasterizer, List<Drawable> drawables, DrawableSelectedHandler drawableSelectedHandler) {
-        this.filledCircleRasterizer = filledCircleRasterizer;
+    public SelectorSubController(RasterizerContext context, List<Drawable> drawables, DrawableSelectedHandler drawableSelectedHandler) {
+        super(context);
         this.drawables = drawables;
         this.drawableSelectedHandler = drawableSelectedHandler;
     }
@@ -62,7 +61,7 @@ public class SelectorSubController extends SubController {
     public void render() {
         if(howerDrawable!=null){
             for (var point : howerDrawable.getPoints()){
-                filledCircleRasterizer.rasterize(point.getX(), point.getY(), PREVIEW_CIRCLE_SIZE, PREVIEW_COLOR);
+                getContext().getFilledCircleRasterizer().rasterize(point.getX(), point.getY(), PREVIEW_CIRCLE_SIZE, PREVIEW_COLOR);
             }
         }
     }

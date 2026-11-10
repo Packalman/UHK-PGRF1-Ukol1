@@ -9,8 +9,6 @@ import controller.sub_controllers.drawable_modifier.SeedFillModifier;
 import graphics.drawable.Drawable;
 import graphics.drawable.LineDrawable;
 import graphics.drawable.SeedFillDrawable;
-import graphics.filler.CollectionSeedFiller;
-import graphics.filler.SeedFiller;
 import graphics.rasterizer.*;
 import view.Canvas;
 import view.Toolbar;
@@ -30,13 +28,7 @@ public class Controller {
     private final Canvas canvas;
     private final Toolbar toolbar;
 
-    private final LineRasterizer lineRasterizer;
-    private final PolygonOutlineRasterizer polygonRasterizer;
-    private final FilledCircleRasterizer filledCircleRasterizer;
-    private final FilledTriangleRasterizer filledTriangleRasterizer;
-    private final ColorTriangleRasterizer colorTriangleRasterizer;
-    private final TextureTriangleRasterizer textureTriangleRasterizer;
-    private final SeedFiller seedFiller;
+    private final RasterizerContext rasterizerContext;
 
     public static final int LINE_INTERACTION_DISTANCE = 20;
     public static final int LINE_INTERACTION_DISTANCE_SQUARED = LINE_INTERACTION_DISTANCE * LINE_INTERACTION_DISTANCE;
@@ -54,13 +46,7 @@ public class Controller {
     public Controller(Canvas canvas, Toolbar toolbar) {
         this.canvas = canvas;
         this.toolbar = toolbar;
-        this.lineRasterizer = new TrivialLineRasterizer(canvas.getRaster());
-        this.polygonRasterizer = new PolygonOutlineRasterizer(lineRasterizer);
-        this.filledCircleRasterizer = new RowFilledCircleRasterizer(canvas.getRaster());
-        this.filledTriangleRasterizer = new FilledTriangleRasterizer(canvas.getRaster());
-        this.colorTriangleRasterizer = new ColorTriangleRasterizer(canvas.getRaster());
-        this.textureTriangleRasterizer = new TextureTriangleRasterizer(canvas.getRaster());
-        this.seedFiller = new CollectionSeedFiller(canvas.getRaster());
+        this.rasterizerContext = new RasterizerContext(canvas.getRaster());
 
         this.controllers = new Hashtable<>();
         drawableSubmitter = new DrawableSubmitter(drawables);
@@ -72,12 +58,12 @@ public class Controller {
 
         toolbar.init(this::toolbarButtonPressed, canvas);
 
-        controllers.put(ControllerType.SELECT, new SelectorSubController(filledCircleRasterizer, drawables, this::selectedDrawableChanged));
-        controllers.put(ControllerType.LINES, new LineCreatorSubController(drawableSubmitter, lineRasterizer));
-        controllers.put(ControllerType.POLYGONS, new PolygonCreatorSubController(drawableSubmitter, lineRasterizer, polygonRasterizer));
-        controllers.put(ControllerType.MODIFY_LINE, new DrawableLineModifier(filledCircleRasterizer, lineRasterizer, this::handleDrawableModified));
-        controllers.put(ControllerType.SEED_FILL, new SeedFillCreatorSubController(canvas.getRaster(), drawableSubmitter, seedFiller, filledCircleRasterizer));
-        controllers.put(ControllerType.MODIFY_SEED_FILL, new SeedFillModifier(canvas.getRaster(), filledCircleRasterizer, seedFiller, this::handleDrawableModified));
+        controllers.put(ControllerType.SELECT, new SelectorSubController(rasterizerContext, drawables, this::selectedDrawableChanged));
+        controllers.put(ControllerType.LINES, new LineCreatorSubController(rasterizerContext, drawableSubmitter));
+        controllers.put(ControllerType.POLYGONS, new PolygonCreatorSubController(rasterizerContext, drawableSubmitter));
+        controllers.put(ControllerType.MODIFY_LINE, new DrawableLineModifier(rasterizerContext, this::handleDrawableModified));
+        controllers.put(ControllerType.SEED_FILL, new SeedFillCreatorSubController(rasterizerContext, drawableSubmitter));
+        controllers.put(ControllerType.MODIFY_SEED_FILL, new SeedFillModifier(rasterizerContext, this::handleDrawableModified));
 
         canvas.addMouseListener(new MouseAdapter() {
             @Override

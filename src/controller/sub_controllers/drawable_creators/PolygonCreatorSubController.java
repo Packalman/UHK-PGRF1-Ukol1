@@ -2,8 +2,7 @@ package controller.sub_controllers.drawable_creators;
 
 import controller.Controller;
 import graphics.drawable.PolygonOutlineDrawable;
-import graphics.rasterizer.LineRasterizer;
-import graphics.rasterizer.PolygonOutlineRasterizer;
+import graphics.rasterizer.RasterizerContext;
 import model.Point;
 import model.Polygon;
 
@@ -13,16 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PolygonCreatorSubController extends CreatorSubController {
-    private final LineRasterizer lineRasterizer;
-    private final PolygonOutlineRasterizer polygonOutlineRasterizer;
     private final List<Point> points;
     private Point mousePoint;
     private int outlineColor;
 
-    public PolygonCreatorSubController(Controller.DrawableSubmitter submitter, LineRasterizer lineRasterizer, PolygonOutlineRasterizer polygonOutlineRasterizer) {
-        super(submitter);
-        this.lineRasterizer = lineRasterizer;
-        this.polygonOutlineRasterizer = polygonOutlineRasterizer;
+    public PolygonCreatorSubController(RasterizerContext context, Controller.DrawableSubmitter submitter) {
+        super(context, submitter);
         points = new ArrayList<>();
     }
 
@@ -54,13 +49,14 @@ public class PolygonCreatorSubController extends CreatorSubController {
         super.keyReleased(e);
 
         if (e.getKeyCode() == KeyEvent.VK_ENTER && points.size()>2){
-            submitDrawable(new PolygonOutlineDrawable(polygonOutlineRasterizer, new Polygon(outlineColor, points.toArray(Point[]::new))));
+            submitDrawable(new PolygonOutlineDrawable(getContext(), new Polygon(outlineColor, points.toArray(Point[]::new))));
             clear();
         }
     }
 
     @Override
     public void render() {
+        var lineRasterizer = getContext().getLineRasterizer();
         if (points.size()>1){
             for (int i = 0; i < points.size()-1; i++) {
                 lineRasterizer.rasterize(points.get(i), points.get(i+1), outlineColor);
@@ -81,7 +77,7 @@ public class PolygonCreatorSubController extends CreatorSubController {
     @Override
     public void disable() {
         if(points.size()>2) {
-            submitDrawable(new PolygonOutlineDrawable(polygonOutlineRasterizer, new Polygon(outlineColor, points.toArray(Point[]::new))));
+            submitDrawable(new PolygonOutlineDrawable(getContext(), new Polygon(outlineColor, points.toArray(Point[]::new))));
             clear();
         }
     }

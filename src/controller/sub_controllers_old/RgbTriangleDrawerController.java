@@ -24,11 +24,6 @@ public class RgbTriangleDrawerController extends TriangleDrawerController {
     }
 
     @Override
-    public String getName() {
-        return "RGB triangles";
-    }
-
-    @Override
     public void render() {
         for (var t : triangles)
             colorTriangleRasterizer.rasterize(t);

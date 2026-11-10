@@ -15,14 +15,11 @@ public class SeedFillController extends SubController {
     private Point seedPoint;
 
     public SeedFillController(Raster<Integer> raster, SeedFiller seedFiller) {
+        super(null);
         this.raster = raster;
         this.seedFiller = seedFiller;
     }
 
-    @Override
-    public String getName() {
-        return "Fill";
-    }
 
     @Override
     public void mouseClicked(MouseEvent e) {

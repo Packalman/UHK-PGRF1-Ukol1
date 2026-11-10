@@ -29,15 +29,11 @@ public class PolygonDrawerController extends SubController {
     private EditedPolygon editedPolygon = null;
 
     public PolygonDrawerController(PolygonOutlineRasterizer polygonRasterizer, LineRasterizer lineRasterizer){
+        super(null);
         this.polygonRasterizer = polygonRasterizer;
         this.lineRasterizer = lineRasterizer;
         completedPolygons = new ArrayList<>();
         polygonPoints = new ArrayList<>();
-    }
-
-    @Override
-    public String getName() {
-        return "Polygons";
     }
 
     @Override

@@ -1,21 +1,21 @@
 package graphics.drawable;
 
-import graphics.rasterizer.LineRasterizer;
+import graphics.rasterizer.RasterizerContext;
 import model.Line;
 import model.Point;
 
 public class LineDrawable implements Drawable {
-    private final LineRasterizer lineRasterizer;
+    private final RasterizerContext context;
     private final Line line;
 
-    public LineDrawable(LineRasterizer lineRasterizer, Line line) {
-        this.lineRasterizer = lineRasterizer;
+    public LineDrawable(RasterizerContext context, Line line) {
+        this.context = context;
         this.line = line;
     }
 
     @Override
     public void draw(boolean selectMode) {
-        lineRasterizer.rasterize(line);
+        this.context.getLineRasterizer().rasterize(line);
     }
 
     @Override

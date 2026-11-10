@@ -1,27 +1,18 @@
 package controller.sub_controllers.drawable_modifier;
 
-import graphics.Raster;
 import graphics.drawable.SeedFillDrawable;
 import graphics.drawable.SeedFillReplaceDrawable;
-import graphics.filler.SeedFiller;
-import graphics.rasterizer.FilledCircleRasterizer;
+import graphics.rasterizer.RasterizerContext;
 import model.Point;
 
 import java.awt.event.MouseEvent;
 
-//TODO: seed-fill modifier
 public class SeedFillModifier extends DrawableModifier<SeedFillDrawable> {
-    private final Raster<Integer> raster;
-    private final FilledCircleRasterizer filledCircleRasterizer;
-    private final SeedFiller seedFiller;
     private int oldColor;
     private Point mousePoint;
 
-    public SeedFillModifier(Raster<Integer> raster, FilledCircleRasterizer filledCircleRasterizer, SeedFiller seedFiller, DrawableModifiedNotifier drawableModifiedNotifier) {
-        super(drawableModifiedNotifier);
-        this.raster = raster;
-        this.filledCircleRasterizer = filledCircleRasterizer;
-        this.seedFiller = seedFiller;
+    public SeedFillModifier(RasterizerContext context, DrawableModifiedNotifier drawableModifiedNotifier) {
+        super(context, drawableModifiedNotifier);
     }
 
     @Override
@@ -34,7 +25,7 @@ public class SeedFillModifier extends DrawableModifier<SeedFillDrawable> {
     public void mouseReleased(MouseEvent e) {
         super.mouseReleased(e);
         mousePoint = Point.fromMouseEvent(e);
-        notifyDrawableModified(new SeedFillReplaceDrawable(seedFiller, filledCircleRasterizer, mousePoint, oldColor, getModifiedDrawableToModify().getFillColorInt()));
+        notifyDrawableModified(new SeedFillReplaceDrawable(getContext(), mousePoint, oldColor, getModifiedDrawableToModify().getFillColorInt()));
     }
 
     @Override
@@ -46,9 +37,9 @@ public class SeedFillModifier extends DrawableModifier<SeedFillDrawable> {
 
     @Override
     public void render() {
-        oldColor = raster.getPixel(mousePoint.getX(), mousePoint.getY());
+        oldColor = getContext().getRaster().getPixel(mousePoint.getX(), mousePoint.getY());
 
-        filledCircleRasterizer.rasterize(mousePoint.getX(), mousePoint.getY(), 10, getModifiedDrawableToModify().getFillColorInt());
+        getContext().getFilledCircleRasterizer().rasterize(mousePoint.getX(), mousePoint.getY(), 10, getModifiedDrawableToModify().getFillColorInt());
     }
 
     @Override

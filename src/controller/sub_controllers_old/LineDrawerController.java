@@ -3,7 +3,7 @@ package controller.sub_controllers_old;
 import controller.Controller;
 import controller.SubController;
 import graphics.drawable.LineDrawable;
-import graphics.rasterizer.LineRasterizer;
+import graphics.rasterizer.RasterizerContext;
 import model.Line;
 import model.Point;
 
@@ -21,7 +21,6 @@ public class LineDrawerController extends SubController {
     private static final int PREVIEW_LINE_COLOR = Color.RED.getRGB();
 
     private final Controller.DrawableSubmitter submitter;
-    private final LineRasterizer lineRasterizer;
 
     private final List<Line> lines = new ArrayList<>();
 
@@ -30,15 +29,9 @@ public class LineDrawerController extends SubController {
     //First point is the one edited
     private Line editedLine = null;
 
-    public LineDrawerController(Controller.DrawableSubmitter submitter, LineRasterizer lineRasterizer)
-    {
+    public LineDrawerController(RasterizerContext context, Controller.DrawableSubmitter submitter) {
+        super(context);
         this.submitter = submitter;
-        this.lineRasterizer = lineRasterizer;
-    }
-
-    @Override
-    public String getName() {
-        return "Lines";
     }
 
     @Override
@@ -73,7 +66,7 @@ public class LineDrawerController extends SubController {
         super.mouseReleased(e);
         if(previewLineStart!=null){
             lines.add(new Line(previewLineStart, Point.fromMouseEvent(e), LINE_COLOR));
-            submitter.submit(new LineDrawable(lineRasterizer, lines.getLast()));
+            submitter.submit(new LineDrawable(getContext(), lines.getLast()));
             previewLine = null;
             previewLineStart = null;
         }
@@ -83,7 +76,7 @@ public class LineDrawerController extends SubController {
 
         if(editedLine!=null){
             lines.add(editedLine);
-            submitter.submit(new LineDrawable(lineRasterizer, editedLine));
+            submitter.submit(new LineDrawable(getContext(), editedLine));
             editedLine = null;
         }
     }
@@ -127,9 +120,9 @@ public class LineDrawerController extends SubController {
     @Override
     public void render() {
         if(previewLine!=null)
-            lineRasterizer.rasterize(previewLine);
+            getContext().getLineRasterizer().rasterize(previewLine);
         if(editedLine!=null)
-            lineRasterizer.rasterize(editedLine);
+            getContext().getLineRasterizer().rasterize(editedLine);
     }
 
     @Override

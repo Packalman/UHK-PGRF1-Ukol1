@@ -45,11 +45,6 @@ public class TexturedTriangleDrawerController extends TriangleDrawerController {
     }
 
     @Override
-    public String getName() {
-        return "Textured triangles";
-    }
-
-    @Override
     public void clear() {
         super.clear();
         triangles.clear();

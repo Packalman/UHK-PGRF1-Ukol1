@@ -2,8 +2,7 @@ package controller.sub_controllers.drawable_creators;
 
 import controller.Controller;
 import graphics.drawable.LineDrawable;
-import graphics.rasterizer.LineRasterizer;
-import lib.transforms.Vec2D;
+import graphics.rasterizer.RasterizerContext;
 import lib.utils.LineUtil;
 import model.Line;
 import model.Point;
@@ -12,14 +11,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public class LineCreatorSubController extends CreatorSubController {
-    private final LineRasterizer liner;
     private Point previewStart, previewEnd;
     private int lineColor;
     private boolean precisionActive = false;
 
-    public LineCreatorSubController(Controller.DrawableSubmitter submitter, LineRasterizer liner) {
-        super(submitter);
-        this.liner = liner;
+    public LineCreatorSubController(RasterizerContext context, Controller.DrawableSubmitter submitter) {
+        super(context, submitter);
     }
 
     public void changeLineColor(int color){
@@ -62,7 +59,7 @@ public class LineCreatorSubController extends CreatorSubController {
     public void mouseReleased(MouseEvent e) {
         super.mouseReleased(e);
         if(previewEnd != null && previewStart != null)
-            submitDrawable(new LineDrawable(liner, new Line(previewStart, previewEnd, lineColor)));
+            submitDrawable(new LineDrawable(getContext(), new Line(previewStart, previewEnd, lineColor)));
         previewStart = null;
         previewEnd = null;
     }
@@ -70,7 +67,7 @@ public class LineCreatorSubController extends CreatorSubController {
     @Override
     public void render() {
         if (previewStart != null && previewEnd != null) {
-            liner.rasterize(new Line(previewStart, previewEnd, lineColor));
+            getContext().getLineRasterizer().rasterize(new Line(previewStart, previewEnd, lineColor));
         }
     }
 

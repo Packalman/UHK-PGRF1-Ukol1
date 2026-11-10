@@ -2,6 +2,7 @@ package controller.sub_controllers.drawable_modifier;
 
 import controller.SubController;
 import graphics.drawable.Drawable;
+import graphics.rasterizer.RasterizerContext;
 
 import java.awt.event.MouseEvent;
 
@@ -9,7 +10,8 @@ public abstract class DrawableModifier<T extends Drawable> extends SubController
     private T modifiedDrawable;
     private final DrawableModifiedNotifier drawableModifiedNotifier;
 
-    public DrawableModifier(DrawableModifiedNotifier drawableModifiedNotifier) {
+    public DrawableModifier(RasterizerContext context, DrawableModifiedNotifier drawableModifiedNotifier) {
+        super(context);
         this.drawableModifiedNotifier = drawableModifiedNotifier;
     }
 

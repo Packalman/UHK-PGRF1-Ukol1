@@ -1,10 +1,19 @@
 package controller;
 
+import graphics.rasterizer.RasterizerContext;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public abstract class SubController {
-    public String getName(){return "";}
+    private final RasterizerContext context;
+    public SubController(RasterizerContext context){
+        this.context = context;
+    }
+
+    protected RasterizerContext getContext(){
+        return this.context;
+    }
 
     public void mouseClicked(MouseEvent e){
 

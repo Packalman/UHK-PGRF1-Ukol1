@@ -18,6 +18,7 @@ public abstract class TriangleDrawerController extends SubController {
     private final List<Point> trianglePoints;
 
     public TriangleDrawerController(LineRasterizer lineRasterizer){
+        super(null);
         this.lineRasterizer = lineRasterizer;
         trianglePoints = new ArrayList<>(3);
     }

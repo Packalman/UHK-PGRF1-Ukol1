@@ -21,11 +21,6 @@ public class FilledTriangleDrawerController extends TriangleDrawerController{
     }
 
     @Override
-    public String getName() {
-        return "Filled triangles";
-    }
-
-    @Override
     public void constructTriangle(Point a, Point b, Point c) {
         triangles.add(new BasicTriangle(a, b, c, FILL_COLOR));
     }

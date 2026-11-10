@@ -1,8 +1,7 @@
 package controller.sub_controllers.drawable_modifier;
 
 import graphics.drawable.LineDrawable;
-import graphics.rasterizer.FilledCircleRasterizer;
-import graphics.rasterizer.LineRasterizer;
+import graphics.rasterizer.RasterizerContext;
 import lib.utils.LineUtil;
 import model.Line;
 import model.Point;
@@ -15,8 +14,6 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     private static final int MOUSE_CAN_MOVE_POINT_COLOR = new Color(255, 0, 0).getRGB();
     private static final int MOUSE_CANT_MOVE_POINT_COLOR = new Color(255, 145, 0).getRGB();
 
-    private final FilledCircleRasterizer circleRasterizer;
-    private final LineRasterizer lineRasterizer;
     private final Point[] modifiedLinePoints = new Point[2];
     private Line modifiedLine;
     private int modifiedPointIndex = -1;
@@ -25,10 +22,8 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     private boolean precision = false;
 
 
-    public DrawableLineModifier(FilledCircleRasterizer circleRasterizer, LineRasterizer lineRasterizer, DrawableModifiedNotifier notifier) {
-        super(notifier);
-        this.circleRasterizer = circleRasterizer;
-        this.lineRasterizer = lineRasterizer;
+    public DrawableLineModifier(RasterizerContext context, DrawableModifiedNotifier notifier) {
+        super(context, notifier);
     }
 
     @Override
@@ -38,7 +33,7 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
         int x = e.getX();
         int y = e.getY();
         if (!modifiedLine.contains(x, y, 10)) {
-            notifyDrawableModified(new LineDrawable(lineRasterizer, modifiedLine));
+            notifyDrawableModified(new LineDrawable(getContext(), modifiedLine));
         }
         else{
             updateModifiedPointIndex(e.getX(), e.getY());
@@ -130,9 +125,9 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
 
     @Override
     public void render() {
-        lineRasterizer.rasterize(modifiedLine);
-        circleRasterizer.rasterize(modifiedLinePoints[0].getX(), modifiedLinePoints[0].getY(), 7, isMouseNear?MOUSE_CAN_MOVE_POINT_COLOR:MOUSE_CANT_MOVE_POINT_COLOR);
-        circleRasterizer.rasterize(modifiedLinePoints[1].getX(), modifiedLinePoints[1].getY(), 7, isMouseNear?MOUSE_CAN_MOVE_POINT_COLOR:MOUSE_CANT_MOVE_POINT_COLOR);
+        getContext().getLineRasterizer().rasterize(modifiedLine);
+        getContext().getFilledCircleRasterizer().rasterize(modifiedLinePoints[0].getX(), modifiedLinePoints[0].getY(), 7, isMouseNear?MOUSE_CAN_MOVE_POINT_COLOR:MOUSE_CANT_MOVE_POINT_COLOR);
+        getContext().getFilledCircleRasterizer().rasterize(modifiedLinePoints[1].getX(), modifiedLinePoints[1].getY(), 7, isMouseNear?MOUSE_CAN_MOVE_POINT_COLOR:MOUSE_CANT_MOVE_POINT_COLOR);
     }
 
     @Override
@@ -143,6 +138,6 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     @Override
     public void disable() {
         if(modifiedLine!=null)
-            notifyDrawableModified(new LineDrawable(lineRasterizer, modifiedLine));
+            notifyDrawableModified(new LineDrawable(getContext(), modifiedLine));
     }
 }

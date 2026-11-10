@@ -1,21 +1,21 @@
 package graphics.drawable;
 
-import graphics.rasterizer.PolygonOutlineRasterizer;
+import graphics.rasterizer.RasterizerContext;
 import model.Point;
 import model.Polygon;
 
 public class PolygonOutlineDrawable implements Drawable{
-    private final PolygonOutlineRasterizer polygonOutlineRasterizer;
+    private final RasterizerContext context;
     private final Polygon polygon;
 
-    public PolygonOutlineDrawable(PolygonOutlineRasterizer polygonOutlineRasterizer, Polygon polygon) {
-        this.polygonOutlineRasterizer = polygonOutlineRasterizer;
+    public PolygonOutlineDrawable(RasterizerContext context, Polygon polygon) {
+        this.context = context;
         this.polygon = polygon;
     }
 
     @Override
     public void draw(boolean selectMode) {
-        polygonOutlineRasterizer.rasterize(polygon);
+        context.getPolygonOutlineRasterizer().rasterize(polygon);
     }
 
     @Override

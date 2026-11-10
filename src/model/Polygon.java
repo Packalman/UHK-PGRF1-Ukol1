@@ -4,16 +4,29 @@ package model;
 public class Polygon {
     private final Line[] lines;
     private final Point[] points;
+    private final int maxY;
+    private final int minY;
 
     public Polygon(int color, Point... points){
         if(points.length > 2){
             lines = new Line[points.length];
             this.points = points;
 
-            for (int i = 1; i < points.length; i++) {
-                lines[i] = new Line(points[i-1], points[i], color);
+            int minY = Integer.MAX_VALUE;
+            int maxY = 0;
+
+            for (int i = 0; i < points.length; i++) {
+                lines[i] = new Line(points[i], points[(i+1)%points.length], color);
+
+                int currentY = points[i].getY();
+                if(currentY>maxY)
+                    maxY = currentY;
+                if(currentY<minY)
+                    minY = currentY;
             }
-            lines[0] = new Line(points[0], points[points.length-1], color);
+
+            this.minY = minY;
+            this.maxY = maxY;
         }
         else{
             throw new RuntimeException("Attempted to create polygon with less than 3 points");
@@ -26,5 +39,13 @@ public class Polygon {
 
     public Point[] getPoints() {
         return points;
+    }
+
+    public int getMinYBound(){
+        return this.minY;
+    }
+
+    public int getMaxYBound(){
+        return this.maxY;
     }
 }
