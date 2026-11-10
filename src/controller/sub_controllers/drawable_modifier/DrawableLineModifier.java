@@ -3,10 +3,12 @@ package controller.sub_controllers.drawable_modifier;
 import graphics.drawable.LineDrawable;
 import graphics.rasterizer.FilledCircleRasterizer;
 import graphics.rasterizer.LineRasterizer;
+import lib.utils.LineUtil;
 import model.Line;
 import model.Point;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
@@ -20,6 +22,7 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     private int modifiedPointIndex = -1;
 
     private boolean isMouseNear = false;
+    private boolean precision = false;
 
 
     public DrawableLineModifier(FilledCircleRasterizer circleRasterizer, LineRasterizer lineRasterizer, DrawableModifiedNotifier notifier) {
@@ -43,10 +46,24 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     }
 
     @Override
+    public void mouseReleased(MouseEvent e) {
+        super.mouseReleased(e);
+
+        modifiedPointIndex = -1;
+    }
+
+    @Override
     public void mouseDragged(MouseEvent e) {
         super.mouseDragged(e);
+        var mousePoint = Point.fromMouseEvent(e);
         if(modifiedPointIndex!=-1){
-            modifiedLinePoints[modifiedPointIndex] = Point.fromMouseEvent(e);
+            if(precision){
+                modifiedLinePoints[modifiedPointIndex] = LineUtil.getPointAxisLocked(modifiedLinePoints[(modifiedPointIndex+1)%2], mousePoint);
+            }
+            else{
+                modifiedLinePoints[modifiedPointIndex] = mousePoint;
+            }
+
             modifiedLine = new Line(modifiedLinePoints[0], modifiedLinePoints[1], modifiedLine.getColor());
         }
     }
@@ -56,6 +73,22 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
         super.mouseMoved(e);
 
         isMouseNear = modifiedLine==null?false:modifiedLine.contains(e.getX(), e.getY(), 10);
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        super.keyPressed(e);
+
+        if(e.getKeyCode() == KeyEvent.VK_SHIFT)
+            precision = true;
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        super.keyReleased(e);
+
+        if(e.getKeyCode()==KeyEvent.VK_SHIFT)
+            precision = false;
     }
 
     private void updateModifiedPointIndex(int x, int y){
@@ -77,13 +110,6 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-        super.mouseReleased(e);
-
-        modifiedPointIndex = -1;
-    }
-
-    @Override
     public void setModifiedDrawable(LineDrawable drawable, MouseEvent e) {
         super.setModifiedDrawable(drawable, e);
 
@@ -96,6 +122,10 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
         updateModifiedPointIndex(e.getX(), e.getY());
 
         isMouseNear = getModifiedDrawableToModify().isPointNear(e.getX(), e.getY());
+
+        // If the user starts modifying with shift,
+        // he has to press it again for precision, when dragging - acceptable
+        precision = false;
     }
 
     @Override
