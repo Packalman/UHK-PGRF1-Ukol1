@@ -53,7 +53,7 @@ public class Toolbar extends JToolBar {
         lineButton.addActionListener((_)->handleButtonPressed(listener, ToolbarButtonType.LINES));
         polygonButton.addActionListener((_)->handleButtonPressed(listener, ToolbarButtonType.POLYGON));
         rectButton.addActionListener((_)->handleButtonPressed(listener, ToolbarButtonType.RECTANGLES));
-        selectButton.addActionListener((_)->handleButtonPressed(listener, ToolbarButtonType.SEED_FILL));
+        seedFillButton.addActionListener((_)->handleButtonPressed(listener, ToolbarButtonType.SEED_FILL));
         clearButton.addActionListener((_)->handleButtonPressed(listener, ToolbarButtonType.CLEAR));
 
         canvas.addKeyListener(new KeyAdapter() {
