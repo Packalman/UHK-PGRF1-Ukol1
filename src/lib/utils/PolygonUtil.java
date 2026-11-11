@@ -3,10 +3,7 @@ package lib.utils;
 import model.Line;
 import model.Point;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class PolygonUtil {
     public static Line[] getLinesForRasterization(Line[] lines){
@@ -30,16 +27,15 @@ public class PolygonUtil {
                     x2 = tmpX;
                     y2 = tmpY;
                 }
-
+                //zkrácení čar
                 int dx = x2-x1;
                 int dy = y2-y1;
 
-                int length = Math.max(Math.abs(dx), Math.abs(dy));
+                int ddx = (int)Math.round(dx/(double)dy);
+                int ddy = 1;
 
-                int ddx = (int)Math.round(dx/(double)length);
-                int ddy = (int)Math.round(dy/(double)length);
-
-                result.add(new Line(new Point(x1, y1), new Point(x2-ddx, y2-ddy), lines[i].getColor()));
+                if(y1!=y2-ddy)
+                    result.add(new Line(new Point(x1, y1), new Point(x2-ddx, y2-ddy), lines[i].getColor()));
             }
         }
 
@@ -50,27 +46,22 @@ public class PolygonUtil {
     public static int[] getLineIntersections(int y, Line[] preparedLines){
         Queue<Integer> intersections = new ArrayDeque<>();
         for (int i = 0; i < preparedLines.length; i++) {
-            var l = preparedLines[i];
-            int yValue = i+y;
-            if(l.containsY(yValue)){
-                int x1 = l.getPointA().getX();
-                int y1 = l.getPointA().getY();
-                int x2 = l.getPointB().getX();
-                int y2 = l.getPointB().getY();
+            var line = preparedLines[i];
+            if(line.containsY(y)){
+                int x1 = line.getPointA().getX();
+                int y1 = line.getPointA().getY();
+                int x2 = line.getPointB().getX();
+                int y2 = line.getPointB().getY();
 
                 int dx = x2-x1;
                 int dy = y2-y1;
 
-                assert dy>0;
-
                 //0 -> y -> dy
-                double x = (dx/(double)dy)*y;
-                intersections.add((int)Math.round(x));
-
-                //intersections.add()
+                double x = (y-y1)/(double)dy*(double)dx;
+                intersections.add((int)Math.round(x+x1));
             }
         }
 
-        return intersections.stream().mapToInt(x->x).toArray();
+        return intersections.stream().mapToInt(x->x).sorted().toArray();
     }
 }
