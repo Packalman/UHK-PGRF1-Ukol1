@@ -1,4 +1,4 @@
-package graphics.filler;
+package graphics.rasterizer.filler;
 
 import graphics.Raster;
 

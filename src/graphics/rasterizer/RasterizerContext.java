@@ -1,8 +1,8 @@
 package graphics.rasterizer;
 
 import graphics.Raster;
-import graphics.filler.CollectionSeedFiller;
-import graphics.filler.SeedFiller;
+import graphics.rasterizer.filler.CollectionSeedFiller;
+import graphics.rasterizer.filler.SeedFiller;
 
 public class RasterizerContext {
     private final Raster<Integer> raster;

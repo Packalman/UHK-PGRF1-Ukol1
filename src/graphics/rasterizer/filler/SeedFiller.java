@@ -1,4 +1,4 @@
-package graphics.filler;
+package graphics.rasterizer.filler;
 
 public interface SeedFiller {
     boolean fillReplaceColor(int x1, int y1, int oldColor, int fillColor);
