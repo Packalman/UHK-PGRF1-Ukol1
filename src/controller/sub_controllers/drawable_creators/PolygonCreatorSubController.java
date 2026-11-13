@@ -1,6 +1,8 @@
 package controller.sub_controllers.drawable_creators;
 
 import controller.Controller;
+import graphics.drawable.Drawable;
+import graphics.drawable.FilledPolygonDrawable;
 import graphics.drawable.PolygonOutlineDrawable;
 import graphics.rasterizer.RasterizerContext;
 import model.Point;
@@ -47,9 +49,12 @@ public class PolygonCreatorSubController extends CreatorSubController {
     public void keyReleased(KeyEvent e) {
         super.keyReleased(e);
 
-        if (e.getKeyCode() == KeyEvent.VK_ENTER && points.size()>2){
-            submitDrawable(new PolygonOutlineDrawable(getContext(), new Polygon(polygonSettings.getOutlineColor().getRGB(), points.toArray(Point[]::new))));
-            clear();
+        if (e.getKeyCode() == KeyEvent.VK_ENTER){
+            var drawable = constructDrawable((PolygonSettings) getSetting().getSidebarSettings());
+            if (drawable != null){
+                submitDrawable(drawable);
+                clear();
+            }
         }
     }
 
@@ -77,9 +82,24 @@ public class PolygonCreatorSubController extends CreatorSubController {
 
     @Override
     public void disable() {
-        if(points.size()>2) {
-            submitDrawable(new PolygonOutlineDrawable(getContext(), new Polygon(polygonSettings.getOutlineColor().getRGB(), points.toArray(Point[]::new))));
+        var drawable = constructDrawable((PolygonSettings) getSetting().getSidebarSettings());
+        if(drawable!=null) {
+            submitDrawable(drawable);
             clear();
         }
+    }
+
+    public Drawable constructDrawable(PolygonSettings polygonSettings){
+        if(points.size()>2){
+            int outlineColor = polygonSettings.getOutlineColor().getRGB();
+            var pointArray = points.toArray(Point[]::new);
+            if(polygonSettings.getFillType() == PolygonSettings.PolygonFillType.NONE){
+                return new PolygonOutlineDrawable(getContext(), new Polygon(outlineColor, pointArray));
+            }
+            if(polygonSettings.getFillType() == PolygonSettings.PolygonFillType.COLOR){
+                return new FilledPolygonDrawable(getContext(), new Polygon(outlineColor, pointArray), polygonSettings.getFillColor().getRGB());
+            }
+        }
+        return null;
     }
 }
