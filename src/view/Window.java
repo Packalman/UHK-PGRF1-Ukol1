@@ -49,4 +49,8 @@ public class Window extends JFrame {
         return this.toolBar;
     }
 
+    public Sidebar getSidebar(){
+        return this.sidebar;
+    }
+
 }
