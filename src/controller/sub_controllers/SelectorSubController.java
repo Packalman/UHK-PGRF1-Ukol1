@@ -29,7 +29,7 @@ public class SelectorSubController extends SubController {
     @Override
     public void mouseMoved(MouseEvent e) {
         super.mouseMoved(e);
-        for (int i = 0; i < drawables.size(); i++) {
+        for (int i = drawables.size()-1; i > -1; i--) {
             if(drawables.get(i).isPointNear(e.getX(), e.getY())){
                 howerDrawable = drawables.get(i);
                 return;
