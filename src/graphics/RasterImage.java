@@ -10,6 +10,10 @@ public class RasterImage implements Raster<Integer>{
         this.buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     }
 
+    public RasterImage(BufferedImage buffer){
+        this.buffer = buffer;
+    }
+
     @Override
     public int getWidth() {
         return buffer.getWidth();
