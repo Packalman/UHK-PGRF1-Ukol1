@@ -3,6 +3,7 @@ package controller.sub_controllers;
 import controller.SubController;
 import graphics.drawable.Drawable;
 import graphics.rasterizer.RasterizerContext;
+import view.Sidebar;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -20,7 +21,7 @@ public class SelectorSubController extends SubController {
 
 
     public SelectorSubController(RasterizerContext context, List<Drawable> drawables, DrawableSelectedHandler drawableSelectedHandler) {
-        super(context);
+        super(context, Sidebar.Setting.NONE);
         this.drawables = drawables;
         this.drawableSelectedHandler = drawableSelectedHandler;
     }

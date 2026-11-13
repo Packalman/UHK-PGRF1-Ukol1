@@ -7,6 +7,7 @@ import graphics.rasterizer.PolygonOutlineRasterizer;
 import model.Line;
 import model.Point;
 import model.Polygon;
+import view.Sidebar;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -29,7 +30,7 @@ public class PolygonDrawerController extends SubController {
     private EditedPolygon editedPolygon = null;
 
     public PolygonDrawerController(PolygonOutlineRasterizer polygonRasterizer, LineRasterizer lineRasterizer){
-        super(null);
+        super(null, Sidebar.Setting.NONE);
         this.polygonRasterizer = polygonRasterizer;
         this.lineRasterizer = lineRasterizer;
         completedPolygons = new ArrayList<>();

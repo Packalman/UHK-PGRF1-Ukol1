@@ -4,6 +4,7 @@ import controller.Controller;
 import graphics.drawable.SeedFillReplaceDrawable;
 import graphics.rasterizer.RasterizerContext;
 import model.Point;
+import view.Sidebar;
 
 import java.awt.event.MouseEvent;
 
@@ -13,7 +14,7 @@ public class SeedFillCreatorSubController extends CreatorSubController{
     private int colorBelowMousePoint;
 
     public SeedFillCreatorSubController(RasterizerContext context, Controller.DrawableSubmitter submitter) {
-        super(context, submitter);
+        super(context, Sidebar.Setting.NONE, submitter);
     }
 
     public void setFillColor(int fillColor){

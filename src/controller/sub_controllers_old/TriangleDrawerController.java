@@ -4,6 +4,7 @@ import controller.SubController;
 import graphics.rasterizer.LineRasterizer;
 import model.Line;
 import model.Point;
+import view.Sidebar;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -18,7 +19,7 @@ public abstract class TriangleDrawerController extends SubController {
     private final List<Point> trianglePoints;
 
     public TriangleDrawerController(LineRasterizer lineRasterizer){
-        super(null);
+        super(null, Sidebar.Setting.NONE);
         this.lineRasterizer = lineRasterizer;
         trianglePoints = new ArrayList<>(3);
     }

@@ -11,10 +11,13 @@ import graphics.drawable.LineDrawable;
 import graphics.drawable.SeedFillDrawable;
 import graphics.rasterizer.*;
 import view.Canvas;
+import view.Sidebar;
 import view.Toolbar;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * Handles user input and controls the application flow related to the {@link Canvas}.
@@ -35,28 +38,19 @@ public class Controller {
 
 
     private List<Drawable> drawables = new ArrayList<>();
-    private DrawableSubmitter drawableSubmitter;
-
-    private ControllerType activeController;
-    private final Dictionary<ControllerType, SubController> controllers;
+    private final DrawableSubmitter drawableSubmitter;
+    private final SubControllerManager subControllerManager;
 
 
     /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Constructors -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-    public Controller(Canvas canvas, Toolbar toolbar) {
+    public Controller(Canvas canvas, Toolbar toolbar, Sidebar sidebar) {
         this.canvas = canvas;
         this.toolbar = toolbar;
         this.rasterizerContext = new RasterizerContext(canvas.getRaster());
 
-        this.controllers = new Hashtable<>();
-        drawableSubmitter = new DrawableSubmitter(drawables);
-    }
-
-    /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Main functions -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
-    public void init() {
-        canvas.clear();
-
-        toolbar.init(this::toolbarButtonPressed, canvas);
+        Map<ControllerType, SubController> controllers = new Hashtable<>();
+        this.drawableSubmitter = new DrawableSubmitter(drawables);
 
         controllers.put(ControllerType.SELECT, new SelectorSubController(rasterizerContext, drawables, this::selectedDrawableChanged));
         controllers.put(ControllerType.LINES, new LineCreatorSubController(rasterizerContext, drawableSubmitter));
@@ -65,58 +59,14 @@ public class Controller {
         controllers.put(ControllerType.SEED_FILL, new SeedFillCreatorSubController(rasterizerContext, drawableSubmitter));
         controllers.put(ControllerType.MODIFY_SEED_FILL, new SeedFillModifier(rasterizerContext, this::handleDrawableModified));
 
-        canvas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                controllers.get(activeController).mousePressed(e);
-                render();
-            }
+        this.subControllerManager = new SubControllerManager(controllers, this::render, sidebar::changeSetting);
+        subControllerManager.addListener(canvas);
+    }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                controllers.get(activeController).mouseReleased(e);
-                render();
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                controllers.get(activeController).mouseClicked(e);
-                render();
-            }
-        });
-        canvas.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                controllers.get(activeController).keyPressed(e);
-                render();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-                controllers.get(activeController).keyReleased(e);
-                render();
-            }
-        });
-        canvas.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                super.mouseMoved(e);
-                controllers.get(activeController).mouseMoved(e);
-                render();
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                super.mouseDragged(e);
-                controllers.get(activeController).mouseDragged(e);
-                render();
-            }
-        });
+    /* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Main functions -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- */
+    public void init() {
+        canvas.clear();
+        toolbar.init(this::toolbarButtonPressed, canvas);
     }
 
     private void toolbarButtonPressed(Toolbar.ToolbarButtonType toolbarButton) {
@@ -125,28 +75,26 @@ public class Controller {
             clear();
         }
         else{
-            if(activeController!=null)
-                controllers.get(activeController).disable();
             switch (toolbarButton){
-                case SELECT -> activeController = ControllerType.SELECT;
-                case LINES -> activeController = ControllerType.LINES;
-                case POLYGON -> activeController = ControllerType.POLYGONS;
-                case SEED_FILL -> activeController = ControllerType.SEED_FILL;
+                case SELECT -> subControllerManager.setActiveController(ControllerType.SELECT);
+                case LINES -> subControllerManager.setActiveController(ControllerType.LINES);
+                case POLYGON -> subControllerManager.setActiveController(ControllerType.POLYGONS);
+                case SEED_FILL -> subControllerManager.setActiveController(ControllerType.SEED_FILL);
             }
         }
     }
 
     private void selectedDrawableChanged(Drawable drawable, MouseEvent e){
         if(drawable instanceof LineDrawable lineDrawable){
-            activeController = ControllerType.MODIFY_LINE;
-            ((DrawableLineModifier)controllers.get(activeController)).setModifiedDrawable(lineDrawable, e);
+            subControllerManager.setActiveController(ControllerType.MODIFY_LINE);
+            ((DrawableLineModifier)subControllerManager.getActiveSubController()).setModifiedDrawable(lineDrawable, e);
             drawables.remove(lineDrawable);
 
             render();
         }
         if(drawable instanceof SeedFillDrawable seedFillDrawable){
-            activeController = ControllerType.MODIFY_SEED_FILL;
-            ((SeedFillModifier)controllers.get(activeController)).setModifiedDrawable(seedFillDrawable, e);
+            subControllerManager.setActiveController(ControllerType.MODIFY_SEED_FILL);
+            ((SeedFillModifier)subControllerManager.getActiveSubController()).setModifiedDrawable(seedFillDrawable, e);
             drawables.remove(seedFillDrawable);
 
             render();
@@ -154,28 +102,26 @@ public class Controller {
     }
 
     private void handleDrawableModified(Drawable... newDrawables){
-        activeController = ControllerType.SELECT;
+        subControllerManager.setActiveController(ControllerType.SELECT);
         drawables.addAll(Arrays.asList(newDrawables));
         render();
     }
 
     private void clear(){
-        var c = controllers.elements();
-        while (c.hasMoreElements()){
-            c.nextElement().clear();
-        }
+        subControllerManager.clear();
+
         drawables.clear();
     }
 
 
     private void render(){
         canvas.clear();
-        boolean selectMode = activeController == ControllerType.SELECT;
+        boolean selectMode = subControllerManager.getActiveSubControllerType() == ControllerType.SELECT;
         for (var d : drawables){
             d.draw(selectMode);
         }
 
-        controllers.get(activeController).render();
+        subControllerManager.render();
 
         canvas.repaint();
     }
@@ -189,6 +135,113 @@ public class Controller {
 
         public void submit(Drawable drawable){
             drawables.add(drawable);
+        }
+    }
+
+    private static class SubControllerManager {
+        private final Map<ControllerType, SubController> controllers;
+        private final InputEventReceiver inputNotifier;
+        private final ActiveSettingChangedNotifier settingNotifier;
+        private ControllerType controllerType;
+
+        public SubControllerManager(Map<ControllerType, SubController> controllers, InputEventReceiver inputNotifier, ActiveSettingChangedNotifier settingNotifier) {
+
+            controllerType = ControllerType.SELECT;
+            this.controllers = controllers;
+            this.inputNotifier = inputNotifier;
+            this.settingNotifier = settingNotifier;
+        }
+
+        public void setActiveController(ControllerType controller){
+            if(controllerType!=controller){
+                getActiveSubController().disable();
+                this.controllerType = controller;
+                settingNotifier.activeSettingChanged(getActiveSubController().getSetting());
+            }
+        }
+
+        public ControllerType getActiveSubControllerType(){
+            return this.controllerType;
+        }
+
+        public SubController getActiveSubController(){
+            return controllers.get(this.controllerType);
+        }
+
+        public void addListener(Component component){
+            component.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    super.mousePressed(e);
+                    getActiveSubController().mousePressed(e);
+                    inputNotifier.notifyInputReceived();
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    super.mouseReleased(e);
+                    getActiveSubController().mouseReleased(e);
+                    inputNotifier.notifyInputReceived();
+                }
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+
+                    getActiveSubController().mouseClicked(e);
+                    inputNotifier.notifyInputReceived();
+                }
+            });
+            component.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    super.keyPressed(e);
+                    getActiveSubController().keyPressed(e);
+                    inputNotifier.notifyInputReceived();
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    super.keyReleased(e);
+                    getActiveSubController().keyReleased(e);
+                    inputNotifier.notifyInputReceived();
+                }
+            });
+            component.addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    super.mouseMoved(e);
+                    if(!component.hasFocus())
+                        component.requestFocus();
+                    getActiveSubController().mouseMoved(e);
+                    inputNotifier.notifyInputReceived();
+                }
+
+                @Override
+                public void mouseDragged(MouseEvent e) {
+                    super.mouseDragged(e);
+                    getActiveSubController().mouseDragged(e);
+                    inputNotifier.notifyInputReceived();
+                }
+            });
+        }
+
+        public void render(){
+            getActiveSubController().render();
+        }
+
+        public void clear(){
+            for (var k : controllers.entrySet()){
+                k.getValue().clear();
+            }
+        }
+
+        public interface InputEventReceiver{
+            void notifyInputReceived();
+        }
+
+        public interface ActiveSettingChangedNotifier {
+            void activeSettingChanged(Sidebar.Setting setting);
         }
     }
 

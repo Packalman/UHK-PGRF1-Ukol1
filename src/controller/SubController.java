@@ -1,18 +1,26 @@
 package controller;
 
 import graphics.rasterizer.RasterizerContext;
+import view.Sidebar;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public abstract class SubController {
     private final RasterizerContext context;
-    public SubController(RasterizerContext context){
+    private final Sidebar.Setting setting;
+
+    public SubController(RasterizerContext context, Sidebar.Setting setting){
         this.context = context;
+        this.setting = setting;
     }
 
     protected RasterizerContext getContext(){
         return this.context;
+    }
+
+    public final Sidebar.Setting getSetting(){
+        return this.setting;
     }
 
     public void mouseClicked(MouseEvent e){

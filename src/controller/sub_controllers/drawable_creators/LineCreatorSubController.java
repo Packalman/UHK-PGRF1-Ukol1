@@ -6,21 +6,21 @@ import graphics.rasterizer.RasterizerContext;
 import lib.utils.LineUtil;
 import model.Line;
 import model.Point;
+import view.Sidebar;
+import view.sidebar.LineSettings;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public class LineCreatorSubController extends CreatorSubController {
+    private final LineSettings settings;
+
     private Point previewStart, previewEnd;
-    private int lineColor;
     private boolean precisionActive = false;
 
     public LineCreatorSubController(RasterizerContext context, Controller.DrawableSubmitter submitter) {
-        super(context, submitter);
-    }
-
-    public void changeLineColor(int color){
-        this.lineColor = color;
+        super(context, Sidebar.Setting.LINE, submitter);
+        this.settings = (LineSettings) Sidebar.Setting.LINE.getSidebarSettings();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class LineCreatorSubController extends CreatorSubController {
     public void mouseReleased(MouseEvent e) {
         super.mouseReleased(e);
         if(previewEnd != null && previewStart != null)
-            submitDrawable(new LineDrawable(getContext(), new Line(previewStart, previewEnd, lineColor)));
+            submitDrawable(new LineDrawable(getContext(), new Line(previewStart, previewEnd, settings.getColor().getRGB())));
         previewStart = null;
         previewEnd = null;
     }
@@ -67,7 +67,7 @@ public class LineCreatorSubController extends CreatorSubController {
     @Override
     public void render() {
         if (previewStart != null && previewEnd != null) {
-            getContext().getLineRasterizer().rasterize(new Line(previewStart, previewEnd, lineColor));
+            getContext().getLineRasterizer().rasterize(new Line(previewStart, previewEnd, settings.getColor().getRGB()));
         }
     }
 

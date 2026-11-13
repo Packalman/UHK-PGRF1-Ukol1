@@ -4,6 +4,7 @@ import graphics.drawable.SeedFillDrawable;
 import graphics.drawable.SeedFillReplaceDrawable;
 import graphics.rasterizer.RasterizerContext;
 import model.Point;
+import view.Sidebar;
 
 import java.awt.event.MouseEvent;
 
@@ -12,7 +13,7 @@ public class SeedFillModifier extends DrawableModifier<SeedFillDrawable> {
     private Point mousePoint;
 
     public SeedFillModifier(RasterizerContext context, DrawableModifiedNotifier drawableModifiedNotifier) {
-        super(context, drawableModifiedNotifier);
+        super(context, Sidebar.Setting.NONE, drawableModifiedNotifier);
     }
 
     @Override

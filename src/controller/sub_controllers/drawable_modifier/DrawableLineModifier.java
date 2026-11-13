@@ -5,6 +5,7 @@ import graphics.rasterizer.RasterizerContext;
 import lib.utils.LineUtil;
 import model.Line;
 import model.Point;
+import view.Sidebar;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -23,7 +24,7 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
 
 
     public DrawableLineModifier(RasterizerContext context, DrawableModifiedNotifier notifier) {
-        super(context, notifier);
+        super(context, Sidebar.Setting.LINE, notifier);
     }
 
     @Override
@@ -137,7 +138,10 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
 
     @Override
     public void disable() {
-        if(modifiedLine!=null)
-            notifyDrawableModified(new LineDrawable(getContext(), modifiedLine));
+        if(modifiedLine != null){
+            var tmp = modifiedLine;
+            modifiedLine = null;//Prevent loop - in Controller.SubControllerManager change active controller method disables previous controller -> recursive loop
+            notifyDrawableModified(new LineDrawable(getContext(), tmp));
+        }
     }
 }
