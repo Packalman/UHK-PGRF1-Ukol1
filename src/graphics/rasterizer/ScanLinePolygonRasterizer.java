@@ -16,11 +16,11 @@ public class ScanLinePolygonRasterizer implements FilledPolygonRasterizer{
 
     @Override
     public void rasterize(Polygon polygon, int fillColor) {
-        rasterize(PolygonUtil.getLinesForRasterization(polygon.getLines()), polygon, fillColor);
+        rasterize(PolygonUtil.getShortenedLines(polygon.getLines()), polygon, fillColor);
     }
 
     @Override
-    public void rasterize(Line[] preparedLines, Polygon polygon, int fillColor) {
+    public void rasterize(PolygonUtil.ShortenedLine[] preparedLines, Polygon polygon, int fillColor) {
         for (int currentY = polygon.getMinYBound(); currentY <= polygon.getMaxYBound(); currentY++) {
             var intersections = PolygonUtil.getLineIntersections(currentY, preparedLines);
             for (int i = 0; i < intersections.length-1; i+=2) {

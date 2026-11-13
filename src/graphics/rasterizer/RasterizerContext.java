@@ -15,7 +15,7 @@ public class RasterizerContext {
     public RasterizerContext(Raster<Integer> raster) {
         this.raster = raster;
 
-        lineRasterizer = new TrivialLineRasterizer(raster);
+        lineRasterizer = new DdaLineRasterizer(raster);//new TrivialLineRasterizer(raster);
         polygonOutlineRasterizer = new PolygonOutlineRasterizer(lineRasterizer);
         filledPolygonRasterizer = new ScanLinePolygonRasterizer(raster, polygonOutlineRasterizer);
         filledCircleRasterizer = new RowFilledCircleRasterizer(raster);

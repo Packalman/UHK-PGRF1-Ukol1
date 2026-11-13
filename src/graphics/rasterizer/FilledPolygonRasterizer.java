@@ -1,9 +1,9 @@
 package graphics.rasterizer;
 
-import model.Line;
+import lib.utils.PolygonUtil;
 import model.Polygon;
 
 public interface FilledPolygonRasterizer {
     void rasterize(Polygon polygon, int fillColor);
-    void rasterize(Line[] preparedLines, Polygon polygon, int fillColor);
+    void rasterize(PolygonUtil.ShortenedLine[] preparedLines, Polygon polygon, int fillColor);
 }

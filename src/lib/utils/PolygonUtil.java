@@ -6,6 +6,37 @@ import model.Point;
 import java.util.*;
 
 public class PolygonUtil {
+    public static ShortenedLine[] getShortenedLines(Line[] lines){
+        List<ShortenedLine> result = new ArrayList<>();
+
+        for (var l : lines) {
+            Point a = l.getPointA();
+            Point b = l.getPointB();
+            if(a.getY()!=b.getY()){
+                if(a.getY()>b.getY()){
+                    Point tmp = a;
+                    a = b;
+                    b = tmp;
+                }
+                result.add(new ShortenedLine(new Line(a, b, l.getColor())));
+            }
+        }
+
+        return result.toArray(ShortenedLine[]::new);
+    }
+
+    public static int[] getLineIntersections(int y, ShortenedLine[] shortenedLines){
+        Queue<Integer> intersections = new ArrayDeque<>();
+        for (int i = 0; i < shortenedLines.length; i++) {
+            var line = shortenedLines[i];
+            if(line.containsY(y)){
+                intersections.add(line.getIntersection(y));
+            }
+        }
+
+        return intersections.stream().mapToInt(x->x).sorted().toArray();
+    }
+
     public static Line[] getLinesForRasterization(Line[] lines){
         List<Line> result = new ArrayList<>();
 
@@ -63,5 +94,35 @@ public class PolygonUtil {
         }
 
         return intersections.stream().mapToInt(x->x).sorted().toArray();
+    }
+
+    public static class ShortenedLine{
+        private final Line line;
+        private final int maxY;
+        private final int minY;
+
+        public ShortenedLine(Line line){
+            this.line = line;
+
+            minY = Math.min(line.getPointA().getY(), line.getPointB().getY());
+            maxY = Math.max(line.getPointA().getY(), line.getPointB().getY())-1;
+        }
+
+        public boolean containsY(int y){
+            return (maxY>=y)&&(y>=minY);
+        }
+
+        /// returns X coordinate of an intersection
+        public int getIntersection(int y){
+            int x1 = line.getPointA().getX();
+            int x2 = line.getPointB().getX();
+            int y1 = line.getPointA().getY();
+            int y2 = line.getPointB().getY();
+            int dx = x2-x1;
+            int dy = y2-y1;
+
+            double x = (y-y1)/(double)dy*(double)dx;
+            return (int)Math.round(x+x1);
+        }
     }
 }
