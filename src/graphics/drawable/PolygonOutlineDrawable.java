@@ -1,31 +1,24 @@
 package graphics.drawable;
 
 import graphics.rasterizer.RasterizerContext;
-import model.Point;
 import model.Polygon;
 
-public class PolygonOutlineDrawable implements Drawable{
+public class PolygonOutlineDrawable extends PolygonDrawable{
     private final RasterizerContext context;
-    private final Polygon polygon;
 
     public PolygonOutlineDrawable(RasterizerContext context, Polygon polygon) {
+        super(polygon);
         this.context = context;
-        this.polygon = polygon;
     }
 
     @Override
     public void draw(boolean selectMode) {
-        context.getPolygonOutlineRasterizer().rasterize(polygon);
-    }
-
-    @Override
-    public Point[] getPoints() {
-        return polygon.getPoints();
+        context.getPolygonOutlineRasterizer().rasterize(getPolygon());
     }
 
     @Override
     public boolean isPointNear(int x, int y) {
-        var lines = polygon.getLines();
+        var lines = getPolygon().getLines();
         for (int i = 0; i < lines.length; i++) {
             if(lines[i].contains(x, y, 15))
                 return true;
