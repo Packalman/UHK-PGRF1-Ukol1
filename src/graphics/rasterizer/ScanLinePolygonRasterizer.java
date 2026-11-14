@@ -24,8 +24,8 @@ public class ScanLinePolygonRasterizer implements FilledPolygonRasterizer{
         for (int currentY = polygon.getMinYBound(); currentY <= polygon.getMaxYBound(); currentY++) {
             var intersections = PolygonUtil.getLineIntersections(currentY, preparedLines);
             for (int i = 0; i < intersections.length-1; i+=2) {
-                int start = intersections[i];
-                int end = intersections[i+1];
+                int start = intersections[i]+1;
+                int end = intersections[i+1]-1;
 
                 for (int j = start; j <= end; j++) {
                     raster.setPixel(j, currentY, fillColor);
