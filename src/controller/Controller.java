@@ -1,9 +1,11 @@
 package controller;
 
+import controller.sub_controllers.CutSubController;
 import controller.sub_controllers.drawable_creators.LineCreatorSubController;
 import controller.sub_controllers.SelectorSubController;
 import controller.sub_controllers.drawable_creators.PolygonCreatorSubController;
 import controller.sub_controllers.drawable_creators.SeedFillCreatorSubController;
+import controller.sub_controllers.drawable_creators.TextureRectangleCreator;
 import controller.sub_controllers.drawable_modifier.DrawableLineModifier;
 import controller.sub_controllers.drawable_modifier.DrawablePolygonModifier;
 import controller.sub_controllers.drawable_modifier.SeedFillModifier;
@@ -61,6 +63,8 @@ public class Controller {
         controllers.put(ControllerType.MODIFY_POLYGONS, new DrawablePolygonModifier(rasterizerContext, this::handleDrawableModified));
         controllers.put(ControllerType.SEED_FILL, new SeedFillCreatorSubController(rasterizerContext, drawableSubmitter));
         controllers.put(ControllerType.MODIFY_SEED_FILL, new SeedFillModifier(rasterizerContext, this::handleDrawableModified));
+        controllers.put(ControllerType.RECTANGLES, new TextureRectangleCreator(rasterizerContext, drawableSubmitter));
+        controllers.put(ControllerType.CUT, new CutSubController(rasterizerContext));
 
         this.subControllerManager = new SubControllerManager(controllers, this::render, sidebar::changeSetting);
         subControllerManager.addListener(canvas);
@@ -82,7 +86,9 @@ public class Controller {
                 case SELECT -> subControllerManager.setActiveController(ControllerType.SELECT);
                 case LINES -> subControllerManager.setActiveController(ControllerType.LINES);
                 case POLYGON -> subControllerManager.setActiveController(ControllerType.POLYGONS);
+                case RECTANGLES -> subControllerManager.setActiveController(ControllerType.RECTANGLES);
                 case SEED_FILL -> subControllerManager.setActiveController(ControllerType.SEED_FILL);
+                case CUT -> subControllerManager.setActiveController(ControllerType.CUT);
             }
         }
     }
@@ -272,5 +278,6 @@ public class Controller {
         POLYGONS,
         RECTANGLES,
         SEED_FILL,
+        CUT
     }
 }

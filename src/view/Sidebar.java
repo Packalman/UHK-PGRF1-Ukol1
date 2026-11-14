@@ -1,5 +1,6 @@
 package view;
 
+import view.sidebar.CutSettings;
 import view.sidebar.LineSettings;
 import view.sidebar.PolygonSettings;
 import view.sidebar.SidebarSettings;
@@ -11,7 +12,7 @@ import java.awt.*;
 public class Sidebar extends JPanel {
     private final JComponent grid;
     private final ScrollPane scrollPane;
-    private Setting currentSetting = Setting.POLYGON;
+    private Setting currentSetting = Setting.NONE;
 
     public Sidebar(int width, int height){
         setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -35,9 +36,11 @@ public class Sidebar extends JPanel {
 
     public void update(){
         grid.removeAll();
-        for (var component : currentSetting.getComponents()){
-            grid.add(component.getLeftComponent());
-            grid.add(component.getRightComponent());
+        if(currentSetting != Setting.NONE) {
+            for (var component : currentSetting.getComponents()) {
+                grid.add(component.getLeftComponent());
+                grid.add(component.getRightComponent());
+            }
         }
         grid.revalidate();
         grid.repaint();
@@ -51,7 +54,8 @@ public class Sidebar extends JPanel {
     public enum Setting{
         NONE(null),
         LINE(new LineSettings()),
-        POLYGON(new PolygonSettings());
+        POLYGON(new PolygonSettings()),
+        CUT(new CutSettings());
 
         private final SidebarSettings sidebarSettings;
 
