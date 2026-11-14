@@ -15,14 +15,4 @@ public class PolygonOutlineDrawable extends PolygonDrawable{
     public void draw(boolean selectMode) {
         context.getPolygonOutlineRasterizer().rasterize(getPolygon());
     }
-
-    @Override
-    public boolean isPointNear(int x, int y) {
-        var lines = getPolygon().getLines();
-        for (int i = 0; i < lines.length; i++) {
-            if(lines[i].contains(x, y, 15))
-                return true;
-        }
-        return false;
-    }
 }

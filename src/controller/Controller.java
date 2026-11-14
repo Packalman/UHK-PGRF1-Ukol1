@@ -5,9 +5,11 @@ import controller.sub_controllers.SelectorSubController;
 import controller.sub_controllers.drawable_creators.PolygonCreatorSubController;
 import controller.sub_controllers.drawable_creators.SeedFillCreatorSubController;
 import controller.sub_controllers.drawable_modifier.DrawableLineModifier;
+import controller.sub_controllers.drawable_modifier.DrawablePolygonModifier;
 import controller.sub_controllers.drawable_modifier.SeedFillModifier;
 import graphics.drawable.Drawable;
 import graphics.drawable.LineDrawable;
+import graphics.drawable.PolygonDrawable;
 import graphics.drawable.SeedFillDrawable;
 import graphics.rasterizer.*;
 import view.Canvas;
@@ -56,6 +58,7 @@ public class Controller {
         controllers.put(ControllerType.LINES, new LineCreatorSubController(rasterizerContext, drawableSubmitter));
         controllers.put(ControllerType.POLYGONS, new PolygonCreatorSubController(rasterizerContext, drawableSubmitter));
         controllers.put(ControllerType.MODIFY_LINE, new DrawableLineModifier(rasterizerContext, this::handleDrawableModified));
+        controllers.put(ControllerType.MODIFY_POLYGONS, new DrawablePolygonModifier(rasterizerContext, this::handleDrawableModified));
         controllers.put(ControllerType.SEED_FILL, new SeedFillCreatorSubController(rasterizerContext, drawableSubmitter));
         controllers.put(ControllerType.MODIFY_SEED_FILL, new SeedFillModifier(rasterizerContext, this::handleDrawableModified));
 
@@ -87,15 +90,28 @@ public class Controller {
     private void selectedDrawableChanged(Drawable drawable, MouseEvent e){
         if(drawable instanceof LineDrawable lineDrawable){
             subControllerManager.setActiveController(ControllerType.MODIFY_LINE);
-            ((DrawableLineModifier)subControllerManager.getActiveSubController()).setModifiedDrawable(lineDrawable, e);
+            var activeController = (DrawableLineModifier)subControllerManager.getActiveSubController();
+            activeController.setModifiedDrawable(lineDrawable, e);
+            activeController.enable();
             drawables.remove(lineDrawable);
 
             render();
         }
         if(drawable instanceof SeedFillDrawable seedFillDrawable){
             subControllerManager.setActiveController(ControllerType.MODIFY_SEED_FILL);
-            ((SeedFillModifier)subControllerManager.getActiveSubController()).setModifiedDrawable(seedFillDrawable, e);
+            var activeController = (SeedFillModifier)subControllerManager.getActiveSubController();
+            activeController.setModifiedDrawable(seedFillDrawable, e);
+            activeController.enable();
             drawables.remove(seedFillDrawable);
+
+            render();
+        }
+        if(drawable instanceof PolygonDrawable polygonDrawable){
+            subControllerManager.setActiveController(ControllerType.MODIFY_POLYGONS);
+            var activeController = (DrawablePolygonModifier)subControllerManager.getActiveSubController();
+            activeController.setModifiedDrawable(polygonDrawable, e);
+            activeController.enable();
+            drawables.remove(polygonDrawable);
 
             render();
         }
@@ -154,7 +170,9 @@ public class Controller {
 
         public void setActiveController(ControllerType controller){
             if(controllerType!=controller){
-                getActiveSubController().disable();
+                if(getActiveSubController().isEnabled()){
+                    getActiveSubController().disable();
+                }
                 this.controllerType = controller;
                 settingNotifier.activeSettingChanged(getActiveSubController().getSetting());
             }

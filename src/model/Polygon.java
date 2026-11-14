@@ -1,6 +1,8 @@
 package model;
 
 
+import java.util.Arrays;
+
 public class Polygon {
     private final Line[] lines;
     private final Point[] points;
@@ -47,5 +49,9 @@ public class Polygon {
 
     public int getMaxYBound(){
         return this.maxY;
+    }
+
+    public static boolean isPointNearOutline(Polygon polygon, Point point, int tolerance){
+        return Arrays.stream(polygon.getLines()).anyMatch(l->l.contains(point.getX(), point.getY(), tolerance));
     }
 }

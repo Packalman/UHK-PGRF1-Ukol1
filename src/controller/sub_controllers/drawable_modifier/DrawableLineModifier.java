@@ -6,6 +6,7 @@ import lib.utils.LineUtil;
 import model.Line;
 import model.Point;
 import view.Sidebar;
+import view.sidebar.LineSettings;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -16,7 +17,7 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     private static final int MOUSE_CANT_MOVE_POINT_COLOR = new Color(255, 145, 0).getRGB();
 
     private final Point[] modifiedLinePoints = new Point[2];
-    private Line modifiedLine;
+    private Line collisionLine;
     private int modifiedPointIndex = -1;
 
     private boolean isMouseNear = false;
@@ -33,8 +34,8 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
 
         int x = e.getX();
         int y = e.getY();
-        if (!modifiedLine.contains(x, y, 10)) {
-            notifyDrawableModified(new LineDrawable(getContext(), modifiedLine));
+        if (!collisionLine.contains(x, y, 10)) {
+            disable();
         }
         else{
             updateModifiedPointIndex(e.getX(), e.getY());
@@ -60,7 +61,7 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
                 modifiedLinePoints[modifiedPointIndex] = mousePoint;
             }
 
-            modifiedLine = new Line(modifiedLinePoints[0], modifiedLinePoints[1], modifiedLine.getColor());
+            updateCollisionLine();
         }
     }
 
@@ -68,7 +69,8 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
     public void mouseMoved(MouseEvent e) {
         super.mouseMoved(e);
 
-        isMouseNear = modifiedLine==null?false:modifiedLine.contains(e.getX(), e.getY(), 10);
+        updateCollisionLine();
+        isMouseNear = collisionLine.contains(e.getX(), e.getY(), 10);
     }
 
     @Override
@@ -105,6 +107,15 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
         }
     }
 
+    private Line constructLine(){
+        int color = ((LineSettings)getSetting().getSidebarSettings()).getColor().getRGB();
+        return new Line(modifiedLinePoints[0], modifiedLinePoints[1], color);
+    }
+
+    private void updateCollisionLine(){
+        this.collisionLine =  new Line(modifiedLinePoints[0], modifiedLinePoints[1], 0);
+    }
+
     @Override
     public void setModifiedDrawable(LineDrawable drawable, MouseEvent e) {
         super.setModifiedDrawable(drawable, e);
@@ -113,7 +124,7 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
         modifiedLinePoints[0] = p[0];
         modifiedLinePoints[1] = p[1];
 
-        modifiedLine = new Line(p[0], p[1], drawable.getColor());
+        updateCollisionLine();
 
         updateModifiedPointIndex(e.getX(), e.getY());
 
@@ -126,22 +137,20 @@ public class DrawableLineModifier extends DrawableModifier<LineDrawable> {
 
     @Override
     public void render() {
-        getContext().getLineRasterizer().rasterize(modifiedLine);
+        getContext().getLineRasterizer().rasterize(constructLine());
         getContext().getFilledCircleRasterizer().rasterize(modifiedLinePoints[0].getX(), modifiedLinePoints[0].getY(), 7, isMouseNear?MOUSE_CAN_MOVE_POINT_COLOR:MOUSE_CANT_MOVE_POINT_COLOR);
         getContext().getFilledCircleRasterizer().rasterize(modifiedLinePoints[1].getX(), modifiedLinePoints[1].getY(), 7, isMouseNear?MOUSE_CAN_MOVE_POINT_COLOR:MOUSE_CANT_MOVE_POINT_COLOR);
     }
 
     @Override
     public void clear() {
-
+        //TODO: disable modifying after 'C'
     }
 
     @Override
     public void disable() {
-        if(modifiedLine != null){
-            var tmp = modifiedLine;
-            modifiedLine = null;//Prevent loop - in Controller.SubControllerManager change active controller method disables previous controller -> recursive loop
-            notifyDrawableModified(new LineDrawable(getContext(), tmp));
-        }
+        super.disable();
+        
+        notifyDrawableModified(new LineDrawable(getContext(), constructLine()));
     }
 }

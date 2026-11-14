@@ -24,6 +24,9 @@ public class FilledPolygonDrawable extends PolygonDrawable{
 
     @Override
     public boolean isPointNear(int x, int y) {
+        if(super.isPointNear(x, y))
+            return true;
+
         if(y>=getPolygon().getMinYBound()&&y<=getPolygon().getMaxYBound()){
             var ranges = PolygonUtil.getLineIntersections(y, PolygonUtil.getShortenedLines(getPolygon().getLines()));
             for (int i = 0; i < ranges.length-1; i+=2) {

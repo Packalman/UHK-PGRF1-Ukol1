@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 public abstract class SubController {
     private final RasterizerContext context;
     private final Sidebar.Setting setting;
+    private boolean enabled;
 
     public SubController(RasterizerContext context, Sidebar.Setting setting){
         this.context = context;
@@ -54,5 +55,14 @@ public abstract class SubController {
     public abstract void render();
     public abstract void clear();
 
-    public void disable(){};
+    public boolean isEnabled(){
+        return this.enabled;
+    }
+
+    public void enable(){
+        this.enabled = true;
+    };
+    public void disable(){
+        this.enabled = false;
+    };
 }
